@@ -1,0 +1,16 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8762
+spring:
+  application:
+    name: service-client
+  data:
+    mongodb:
+      database: test
+      host: localhost
+      port: 27017
+logging:
+  config: classpath:lomback-spring.xml
