@@ -65,8 +65,10 @@ public class SubscriptionService extends HttpsService {
                 + "\",\"password\": \""
                 + sva.getPassword() + "\"}}}}}";
         String charset = "UTF-8";
+        log.info("subscribeHeavyLoad content:" + content);
         this.insertHeavyLoad();
         MongodbUtils.findAll(new HeavyLoad());
+
         try{
             // 获取token值
             Map<String,String> tokenResult = HttpsService.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
@@ -634,9 +636,10 @@ public class SubscriptionService extends HttpsService {
             heavyLoad.setUcDLRbRate("-1");
             heavyLoad.setSvcCellId((long)123456);
             heavyLoad.setTimestamp(new Date());
+//            MongodbUtils.save(heavyLoad);
             list.add(heavyLoad);
         }
 
-        MongodbUtils.save(list,"heavyLoad");
+        MongodbUtils.saveList(list);
     }
 }

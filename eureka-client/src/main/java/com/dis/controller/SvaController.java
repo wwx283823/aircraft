@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Slf4j
 public class SvaController {
 
     @Autowired
@@ -19,9 +18,7 @@ public class SvaController {
 
     @RequestMapping("/subHperf")
     public String subHperf(){
-        log.info("subHperf start!");
         subscriptionService.subscribeHeavyLoad(sva);
-        log.info("subHperf end!");
         return  "success";
     }
 }

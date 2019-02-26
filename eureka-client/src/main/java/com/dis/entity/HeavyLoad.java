@@ -9,9 +9,10 @@ import java.util.Date;
 
 @Document(collection = "heavyLoad")
 @Data
-public class HeavyLoad  implements Serializable {
+public class HeavyLoad  implements Serializable  {
 
-    private Object _id;
+    @Id
+    private String  _id;
 
     private Date timestamp;
 

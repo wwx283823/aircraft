@@ -3,9 +3,11 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import com.dis.entity.HeavyLoad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -57,6 +59,16 @@ public class MongodbUtils {
         mongodbUtils.mongoTemplate.save(obj, collectionName);
     }
 
+    public static void saveList(List<HeavyLoad> list) {
+//        // BulkMode.UNORDERED:表示并行处理，遇到错误时能继续执行不影响其他操作；BulkMode.ORDERED：表示顺序执行，遇到错误时会停止所有执行
+//        BulkOperations ops =  mongodbUtils.mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, "test");
+//        for (HeavyLoad heavyLoad:list){
+//            ops.insert(heavyLoad);
+//        }
+//        // 执行操作
+//        ops.execute();
+        mongodbUtils.mongoTemplate.insertAll(list);
+    }
     /**
      * 根据数据对象中的id删除数据，集合为数据对象中@Document 注解所配置的collection
      *

@@ -1,7 +1,6 @@
 package com.dis.eurekaclient;
 
 import com.dis.entity.User;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@Slf4j
 public class EurekaController {
 
     @Value("${server.port}")
@@ -20,7 +18,6 @@ public class EurekaController {
     @RequestMapping("/hi")
     public String home(@RequestParam String name)
     {
-        log.info("get hi,port"+port);
         return "hi " + name + ",i am from port:" + port;
     }
 
@@ -34,7 +31,6 @@ public class EurekaController {
         Map<String,Object> maps = new HashMap<String,Object>();
         maps.put("data",user);
         maps.put("status",200);
-        log.info("get hiModel,port"+port);
         return  maps;
     }
 }

@@ -45,7 +45,6 @@ public class AmqpThread extends Thread {
     /** 
      * <p>Title: </p> 
      * <p>Description: 构造函数</p>
-     * @param dao
      * @param queue 
      */
     public AmqpThread(Sva sva, String queue){
@@ -216,7 +215,7 @@ public class AmqpThread extends Thread {
         }
         if (heavyLoadList!=null&&heavyLoadList.size()>0) {
             log.info("hperfstream insert start!");
-            MongodbUtils.save(heavyLoadList);
+            MongodbUtils.saveList(heavyLoadList);
             log.debug("hperfstream insert end!");
         }
     }
