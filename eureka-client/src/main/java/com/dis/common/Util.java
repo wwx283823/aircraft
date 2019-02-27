@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -522,4 +523,24 @@ public class Util {
     // ftp4jConnecttion("139.159.219.166", 990, "Administrator",
     // "Huawei@sva_demo_app");
     // }
+
+    /**
+     * @Description:	十进制转换成二进制 ()
+     * @param decimalSource
+     * @return String
+     */
+    public static String decimalToBinary(int decimalSource) {
+        BigInteger bi = new BigInteger(String.valueOf(decimalSource));	//转换成BigInteger类型
+        return bi.toString(2);	//参数2指定的是转化成X进制，默认10进制
+    }
+
+    /**
+     * @Description:	二进制转换成十进制
+     * @param binarySource
+     * @return int
+     */
+    public static int binaryToDecimal(String binarySource) {
+        BigInteger bi = new BigInteger(binarySource, 2);	//转换为BigInteger类型
+        return Integer.parseInt(bi.toString());		//转换成十进制
+    }
 }

@@ -21,4 +21,10 @@ public class SvaController {
         subscriptionService.subscribeHeavyLoad(sva);
         return  "success";
     }
+
+    @RequestMapping("/hperfdef")
+    public String subHperf(int type){
+        subscriptionService.subscribeHeavyLoad(sva);
+        return  "success";
+    }
 }

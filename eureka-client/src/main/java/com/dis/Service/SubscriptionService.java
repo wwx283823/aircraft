@@ -1,9 +1,6 @@
 package com.dis.Service;
 
-import com.dis.common.AmqpThread;
-import com.dis.common.GlobalConf;
-import com.dis.common.HttpsService;
-import com.dis.common.MongodbUtils;
+import com.dis.common.*;
 import com.dis.entity.HeavyLoad;
 import com.dis.entity.Sva;
 import lombok.extern.slf4j.Slf4j;
@@ -66,8 +63,8 @@ public class SubscriptionService extends HttpsService {
                 + sva.getPassword() + "\"}}}}}";
         String charset = "UTF-8";
         log.info("subscribeHeavyLoad content:" + content);
-        this.insertHeavyLoad();
-        MongodbUtils.findAll(new HeavyLoad());
+//        this.insertHeavyLoad();
+//        MongodbUtils.findAll(new HeavyLoad());
 
         try{
             // 获取token值
@@ -181,6 +178,99 @@ public class SubscriptionService extends HttpsService {
         }
     }
 
+    public void hperfdef(Sva sva,int type,String value){
+        int ss = Util.binaryToDecimal(value);
+        log.info("hperfdef started:"
+                + "appName:" + sva.getUsername()
+                + ",ip:" + sva.getIp()
+                + ",port:" + sva.getTokenPort()
+        );
+
+        // 获取token地址
+        String url = "https://" + sva.getIp() + ":"
+                + sva.getTokenPort() + "/v3/auth/tokens";
+        // 获取token参数
+        String content = "{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\": {\"user\": {\"domain\": \"Api\",\"name\": \""
+                + sva.getUsername()
+                + "\",\"password\": \""
+                + sva.getPassword() + "\"}}}}}";
+        String charset = "UTF-8";
+        log.info("hperfdef content:" + content);
+//        this.insertHeavyLoad();
+//        MongodbUtils.findAll(new HeavyLoad());
+
+        try{
+            // 获取token值
+            Map<String,String> tokenResult = HttpsService.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
+            String token = tokenResult.get("token");
+            sva.setToken(token);
+
+            if(StringUtils.isEmpty(token)){
+                log.info("hperfdef token got failed:appName:" + sva.getUsername());
+                return;
+            }
+            log.info("hperfdef token got:"+token);
+            String idTypeString = null;
+            if(type==0){
+                idTypeString = ",\"idType\":\"user\""+",\"idType\":\"user\"";
+            }else if(type==1){
+
+            }else if(type==2){
+
+            }else{
+                log.info("hperfdef type error type:"+type);
+                return;
+            }
+            url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
+                    + "/enabler/catalog/hperfdef/json/v1.0";
+            content = "{\"APPID\":\"" + sva.getUsername()+"}";
+//            content = "{\"APPID\":\"" + sva.getUsername()
+//            + "\"" + idTypeString
+//            + ",\"useridlist\":[\""
+//            + "\"]}";
+            log.info("subscribeHeavyLoad param:"+content);
+            // 获取订阅ID
+            Map<String,String> subResult = HttpsService.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
+            log.info("subscribeHeavyLoad result:" + subResult.get("result"));
+            JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
+            //判断是否订阅成功,成功为0
+            JSONObject svaResult =  jsonObj.getJSONObject("result");
+            int svaString = svaResult.getInt("error_code");
+            if (0==svaString) {
+                JSONArray list = jsonObj.getJSONArray("Subscribe Information");
+                JSONObject obj = (JSONObject) list.get(0);
+                String queueId = obj.getString("QUEUE_ID");
+                log.info("subscribeHeavyLoad queueId:" + queueId);
+                // 如果获取queueId，则进入数据对接逻辑
+                if(StringUtils.isNotEmpty(queueId)){
+//                    if(mongodbUtils==null){
+//                        mongodbUtils = new MongodbUtils();
+//                    }
+                    AmqpThread at = new AmqpThread(sva,queueId);
+                    GlobalConf.addAmqpThread(sva.getId(), at);
+                    at.start();
+                }else{
+                    log.info("subscribeHeavyLoad queueId got failed:appName:" + sva.getUsername());
+                }
+            }
+            else{
+                log.info("subscribeHeavyLoad sva Subscription failed: "+jsonObj);
+            }
+
+        }
+        catch (IOException e)
+        {
+            log.error("subscribeHeavyLoad IOException.", e);
+        }
+        catch (KeyManagementException e)
+        {
+            log.error("subscribeHeavyLoad KeyManagementException.", e);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            log.error("subscribeHeavyLoad NoSuchAlgorithmException.", e);
+        }
+    }
 
 //    public void subscribeSvaPhone(SvaModel sva, String phoneIp){
 //
