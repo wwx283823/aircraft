@@ -2,6 +2,7 @@ package com.dis.Service;
 
 import com.dis.common.*;
 import com.dis.entity.HeavyLoad;
+import com.dis.entity.HeavyLoadParam;
 import com.dis.entity.Sva;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -178,14 +179,12 @@ public class SubscriptionService extends HttpsService {
         }
     }
 
-    public void hperfdef(Sva sva,int type,String value){
-        int ss = Util.binaryToDecimal(value);
+    public void hperfdef(Sva sva, HeavyLoadParam heavyLoadParam){
         log.info("hperfdef started:"
                 + "appName:" + sva.getUsername()
                 + ",ip:" + sva.getIp()
                 + ",port:" + sva.getTokenPort()
         );
-
         // 获取token地址
         String url = "https://" + sva.getIp() + ":"
                 + sva.getTokenPort() + "/v3/auth/tokens";
@@ -195,10 +194,12 @@ public class SubscriptionService extends HttpsService {
                 + "\",\"password\": \""
                 + sva.getPassword() + "\"}}}}}";
         String charset = "UTF-8";
-        log.info("hperfdef content:" + content);
-//        this.insertHeavyLoad();
+        log.info("hperfdef token content:" + content);
+        this.insertHeavyLoad();
 //        MongodbUtils.findAll(new HeavyLoad());
-
+        String idTypeString = heavyLoadParam.getParam();
+        content = "{\"APPID\":\"" + sva.getUsername()
+                + "\"" + idTypeString;
         try{
             // 获取token值
             Map<String,String> tokenResult = HttpsService.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
@@ -210,65 +211,35 @@ public class SubscriptionService extends HttpsService {
                 return;
             }
             log.info("hperfdef token got:"+token);
-            String idTypeString = null;
-            if(type==0){
-                idTypeString = ",\"idType\":\"user\""+",\"idType\":\"user\"";
-            }else if(type==1){
-
-            }else if(type==2){
-
-            }else{
-                log.info("hperfdef type error type:"+type);
-                return;
-            }
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
                     + "/enabler/catalog/hperfdef/json/v1.0";
-            content = "{\"APPID\":\"" + sva.getUsername()+"}";
-//            content = "{\"APPID\":\"" + sva.getUsername()
-//            + "\"" + idTypeString
-//            + ",\"useridlist\":[\""
-//            + "\"]}";
-            log.info("subscribeHeavyLoad param:"+content);
+//            content = "{\"APPID\":\"" + sva.getUsername()+"}";
+            log.info("hperfdef content:"+content);
             // 获取订阅ID
             Map<String,String> subResult = HttpsService.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
-            log.info("subscribeHeavyLoad result:" + subResult.get("result"));
+            log.info("hperfdef result:" + subResult.get("result"));
             JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
             //判断是否订阅成功,成功为0
             JSONObject svaResult =  jsonObj.getJSONObject("result");
             int svaString = svaResult.getInt("error_code");
             if (0==svaString) {
-                JSONArray list = jsonObj.getJSONArray("Subscribe Information");
-                JSONObject obj = (JSONObject) list.get(0);
-                String queueId = obj.getString("QUEUE_ID");
-                log.info("subscribeHeavyLoad queueId:" + queueId);
-                // 如果获取queueId，则进入数据对接逻辑
-                if(StringUtils.isNotEmpty(queueId)){
-//                    if(mongodbUtils==null){
-//                        mongodbUtils = new MongodbUtils();
-//                    }
-                    AmqpThread at = new AmqpThread(sva,queueId);
-                    GlobalConf.addAmqpThread(sva.getId(), at);
-                    at.start();
-                }else{
-                    log.info("subscribeHeavyLoad queueId got failed:appName:" + sva.getUsername());
-                }
+                log.info("hperfdef success!");
             }
             else{
-                log.info("subscribeHeavyLoad sva Subscription failed: "+jsonObj);
+                log.info("hperfdef failed!");
             }
-
         }
         catch (IOException e)
         {
-            log.error("subscribeHeavyLoad IOException.", e);
+            log.error("hperfdef IOException.", e);
         }
         catch (KeyManagementException e)
         {
-            log.error("subscribeHeavyLoad KeyManagementException.", e);
+            log.error("hperfdef KeyManagementException.", e);
         }
         catch (NoSuchAlgorithmException e)
         {
-            log.error("subscribeHeavyLoad NoSuchAlgorithmException.", e);
+            log.error("hperfdef NoSuchAlgorithmException.", e);
         }
     }
 
