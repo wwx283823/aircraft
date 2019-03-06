@@ -1,6 +1,9 @@
 package com.dis.Service;
 
-import com.dis.common.*;
+import com.dis.common.AmqpThread;
+import com.dis.common.GlobalConf;
+import com.dis.common.HttpsService;
+import com.dis.common.MongodbUtils;
 import com.dis.entity.HeavyLoad;
 import com.dis.entity.HeavyLoadParam;
 import com.dis.entity.Sva;
@@ -8,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,7 +23,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class SubscriptionService extends HttpsService {
+public class SubscriptionService extends HttpsService  {
 
     /**
      * @Fields amqpDao : amqp对接入库dao
@@ -69,7 +71,7 @@ public class SubscriptionService extends HttpsService {
 
         try{
             // 获取token值
-            Map<String,String> tokenResult = HttpsService.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
+            Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
             sva.setToken(token);
 
@@ -81,10 +83,10 @@ public class SubscriptionService extends HttpsService {
 
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
                     + "/enabler/catalog/hperfstreamreg/json/v1.0";
-            content = "{\"APPID\":\"" + sva.getUsername()+"}";
+            content = "{\"APPID\":\"" + sva.getUsername()+"\"}";
             log.info("subscribeHeavyLoad param:"+content);
             // 获取订阅ID
-            Map<String,String> subResult = HttpsService.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
+            Map<String,String> subResult = this.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
             log.info("subscribeHeavyLoad result:" + subResult.get("result"));
             JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
             //判断是否订阅成功,成功为0
@@ -100,9 +102,11 @@ public class SubscriptionService extends HttpsService {
 //                    if(mongodbUtils==null){
 //                        mongodbUtils = new MongodbUtils();
 //                    }
+                    log.info("subscribeHeavyLoad AmqpThread");
                     AmqpThread at = new AmqpThread(sva,queueId);
                     GlobalConf.addAmqpThread(sva.getId(), at);
                     at.start();
+                    log.info("subscribeHeavyLoad starting AmqpThread");
                 }else{
                     log.info("subscribeHeavyLoad queueId got failed:appName:" + sva.getUsername());
                 }
@@ -143,7 +147,7 @@ public class SubscriptionService extends HttpsService {
                     + "\",\"password\": \""
                     + sva.getPassword() + "\"}}}}}";
             String charset = "UTF-8";
-            Map<String,String> tokenResult = HttpsService.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
+            Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
             if(StringUtils.isEmpty(token)){
                 log.error("[unSubscribeHeavyLoad]token got failed:appName:" + sva.getUsername());
@@ -155,7 +159,7 @@ public class SubscriptionService extends HttpsService {
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
                     + "/enabler/catalog/hperfstreamunreg/json/v1.0";
             content = "{\"APPID\":\"" + sva.getUsername()  + "\"}";
-            Map<String,String> subResult = HttpsService.httpsPost(url, content,charset, "DELETE", token, svaSSLVersion);
+            Map<String,String> subResult = this.httpsPost(url, content,charset, "DELETE", token, svaSSLVersion);
             log.info("[unSubscribeHeavyLoad]result:" + subResult.get("result"));
             // 关闭amqp连接
             GlobalConf.removeAmqpThread(sva.getId());
@@ -195,14 +199,11 @@ public class SubscriptionService extends HttpsService {
                 + sva.getPassword() + "\"}}}}}";
         String charset = "UTF-8";
         log.info("hperfdef token content:" + content);
-        this.insertHeavyLoad();
+//        this.insertHeavyLoad();
 //        MongodbUtils.findAll(new HeavyLoad());
-        String idTypeString = heavyLoadParam.getParam();
-        content = "{\"APPID\":\"" + sva.getUsername()
-                + "\"" + idTypeString;
         try{
             // 获取token值
-            Map<String,String> tokenResult = HttpsService.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
+            Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
             sva.setToken(token);
 
@@ -213,10 +214,12 @@ public class SubscriptionService extends HttpsService {
             log.info("hperfdef token got:"+token);
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
                     + "/enabler/catalog/hperfdef/json/v1.0";
-//            content = "{\"APPID\":\"" + sva.getUsername()+"}";
+            String idTypeString = heavyLoadParam.getIntParam();
+            content = "{\"APPID\":\"" + sva.getUsername()
+                    + "\"" + idTypeString;
             log.info("hperfdef content:"+content);
             // 获取订阅ID
-            Map<String,String> subResult = HttpsService.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
+            Map<String,String> subResult = this.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
             log.info("hperfdef result:" + subResult.get("result"));
             JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
             //判断是否订阅成功,成功为0

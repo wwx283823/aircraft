@@ -1,16 +1,9 @@
-/**   
- * @Title: HttpsService.java 
- * @Package com.sva.service.core 
- * @Description: https服务
- * @author labelCS   
- * @date 2016年8月18日 下午3:57:48 
- * @version V1.0   
- */
 package com.dis.common;
 
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.net.ssl.*;
 import java.io.ByteArrayOutputStream;
@@ -25,16 +18,12 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public abstract class HttpsService {
-	/**
-	 * @Fields log 输出日志
-	 */
-    private static final Logger log = LoggerFactory.getLogger(HttpsService.class);
-
-    /** 
-     * @Fields xtm : 证书管理器 
-     */ 
-    private static X509TrustManager xtm = new X509TrustManager()
+    /**
+     * @Fields xtm : 证书管理器
+     */
+    private X509TrustManager xtm = new X509TrustManager()
     {
         @Override
         public X509Certificate[] getAcceptedIssuers()
@@ -61,10 +50,10 @@ public abstract class HttpsService {
         }
     };
 
-    /** 
-     * @Fields hv : 主机名验证 
-     */ 
-    private static HostnameVerifier hv = new HostnameVerifier()
+    /**
+     * @Fields hv : 主机名验证
+     */
+    private HostnameVerifier hv = new HostnameVerifier()
     {
         @Override
         public boolean verify(String arg0, SSLSession arg1)
@@ -72,26 +61,26 @@ public abstract class HttpsService {
             return true;
         }
     };
-    
-    /** 
-     * @Title: httpsPost 
-     * @Description: 发送https请求 
+
+    /**
+     * @Title: httpsPost
+     * @Description: 发送https请求
      * @param url 请求地址
      * @param content 请求参数
      * @param charset 编码
      * @param method 请求方式
-     * @param token 
+     * @param token
      * @return
      * @throws NoSuchAlgorithmException
      * @throws KeyManagementException
-     * @throws IOException 
+     * @throws IOException
      */
-    public static Map<String,String> httpsPost(String url, String content, String charset,String method, String token, 
-            String sslVersion)
+    public Map<String,String> httpsPost(String url, String content, String charset,String method, String token,
+                                        String sslVersion)
             throws NoSuchAlgorithmException, KeyManagementException,
             IOException
     {
-    	log.debug("httpsPost url:" + url+" count:"+content);
+        log.info("httpsPost url:" + url+",count:"+content+",charset:"+charset+",method"+method+",token:"+token+",sslVersion:"+sslVersion);
         Map<String,String> result = new HashMap<String,String>();
         String returnVal = "";
         URL console = new URL(url);
@@ -112,7 +101,7 @@ public abstract class HttpsService {
         con.setRequestProperty("Accept", "application/json");
         con.setRequestProperty("Content-Type", "application/json");
         if(StringUtils.isNotEmpty(token)){
-            con.setRequestProperty("X-Auth-Token", token);        	
+            con.setRequestProperty("X-Auth-Token", token);
         }
 
         // 写入参数
@@ -133,13 +122,13 @@ public abstract class HttpsService {
             }
             is.close();
             returnVal = outStream.toString(charset);
-            log.debug(returnVal+" "+charset);
-            
+            log.info("httpsPost returnVal:"+returnVal+",charset:"+charset);
         }
         con.disconnect();
-        
+
         result.put("result", returnVal);
         result.put("token", con.getHeaderField("X-Subject-Token"));
+        log.info("httpsPost result:"+result);
         return result;
     }
 }

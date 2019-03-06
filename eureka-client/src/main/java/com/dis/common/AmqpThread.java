@@ -11,6 +11,7 @@ import org.apache.qpid.client.AMQAnyDestination;
 import org.apache.qpid.client.AMQConnection;
 import org.apache.qpid.url.URLSyntaxException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.system.ApplicationHome;
 
 import javax.jms.*;
 import java.io.File;
@@ -22,7 +23,7 @@ import java.util.List;
 public class AmqpThread extends Thread {
 
     
-    @Autowired
+
     private Sva sva;
 //    /**
 //     * @Fields dao : 数据库处理句柄
@@ -47,10 +48,23 @@ public class AmqpThread extends Thread {
      * <p>Description: 构造函数</p>
      * @param queue 
      */
-    public AmqpThread(Sva sva, String queue){
-        this.sva = sva;
+    public AmqpThread(Sva svaParam, String queue){
+        sva = new Sva();
+        sva.setBrokerPort(svaParam.getBrokerPort());
+        sva.setToken(svaParam.getToken());
+        sva.setId(svaParam.getId());
+        sva.setIdType(svaParam.getIdType());
+        sva.setIp(svaParam.getIp());
+        sva.setPassword(svaParam.getPassword());
+        sva.setStatus(svaParam.getStatus());
+        sva.setTokenPort(svaParam.getTokenPort());
+        sva.setType(svaParam.getType());
+        sva.setUsername(svaParam.getUsername());
+//        this.sva = sva;
 //        this.dao = dao;
         this.queueId = queue;
+        log.info("new AmqpThread queueId:"+queueId);
+
     }
     
     /** 
@@ -61,14 +75,15 @@ public class AmqpThread extends Thread {
     {
         this.isStop = true;
     }
-    
+
     /* (非 Javadoc) 
      * <p>Title: run</p> 
      * <p>Description: 实现sva数据订阅</p>  
      * @see java.lang.Thread#run() 
      */
     public void run()
-    {        
+    {
+        log.info("AmqpThread run sva:"+sva.getIp()+",id："+sva.getId()+",userName:"+sva.getUsername());
         String ip = sva.getIp();
         String id = sva.getId();
         String userName = sva.getUsername();
@@ -80,21 +95,26 @@ public class AmqpThread extends Thread {
                 + ",port:" + port
                 + ",id:" + id);
 
-        String classPath = AmqpThread.class.getClassLoader().getResource("/").getPath();  
-        String rootPath = "";  
-        //windows下  
-        if("\\".equals(File.separator)){  
-            System.out.println("windows");  
-        rootPath = classPath.substring(1,classPath.indexOf("/classes"));  
-        rootPath = rootPath.replace("/", "\\");  
-        }  
-        //linux下  
-        if("/".equals(File.separator)){  
-            System.out.println("linux");  
-        rootPath = classPath.substring(0,classPath.indexOf("/classes"));  
-        rootPath = rootPath.replace("\\", "/");  
-        }  
-        rootPath = rootPath + File.separator + "java_keystore" + File.separator;
+//        String classPath = AmqpThread.class.getClassLoader().getResource("/").getPath();
+        String rootPath = "";
+//        //windows下
+//        if("\\".equals(File.separator)){
+//        rootPath = classPath.substring(1,classPath.indexOf("/classes"));
+//            log.info("windows rootPath:"+rootPath);
+//        rootPath = rootPath.replace("/", "\\");
+//        }
+//        //linux下
+//        if("/".equals(File.separator)){
+//
+//        rootPath = classPath.substring(0,classPath.indexOf("/classes"));
+//            log.info("linux rootPath:"+rootPath);
+//        rootPath = rootPath.replace("\\", "/");
+//        }
+        ApplicationHome home = new ApplicationHome(getClass());
+        File jarFile = home.getSource();
+        log.info("path:"+jarFile.getParentFile());
+        rootPath = jarFile.getParentFile().toString()+File.separator;
+//        rootPath = rootPath + File.separator + "java_keystore" + File.separator;
         log.info("get keystore path:"+rootPath + "keystore.jks");
         log.info("get keystore path:"+rootPath + "mykeystore.jks");
         // 设置系统环境jvm参数

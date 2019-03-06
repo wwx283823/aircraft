@@ -24,11 +24,11 @@ public class HeavyLoadParam implements Serializable  {
     //调整策略
     private int effecttype;
     //最大上行干扰门限
-    private String ulcellmaxinterference; //-115dbm
+    private int ulcellmaxinterference; //-115dbm
     //上行prb利用率门限
-    private String ulrbmaxrate;
+    private int ulrbmaxrate;
     //下行prb利用率门限
-    private String dlrbmaxrate;
+    private int dlrbmaxrate;
     //用户数开关
     private int usercntsw; //0 关闭，1 开启
     //RSRP门限开关
@@ -44,7 +44,9 @@ public class HeavyLoadParam implements Serializable  {
     //小区最大用户数门限
     private int maxcelluser;
     //与邻区用户数超出比例
-    private String neibouruserrate;
+    private int neibouruserrate;
+    //三种状态的开关  0 关闭，1开启
+    private int openClose;
 
     //获取参数
     public  String getParam(){
@@ -52,15 +54,15 @@ public class HeavyLoadParam implements Serializable  {
         String idtype = null;
         if(type==0){
             param = String.valueOf(this.usercntsw);
-            idtype = ",\"idtype\":\"fcnuser\""+",\"ulrbmaxrate\":\""+this.ulrbmaxrate+"\""+",\"dlrbmaxrate\":\""
+            idtype = ",\"idtype\":\"fcnuser\""+",\"userBalcSwitch\":\""+this.openClose+"\",\"ulrbmaxrate\":\""+this.ulrbmaxrate+"\""+",\"dlrbmaxrate\":\""
                     +this.dlrbmaxrate+"\""+",\"usercnt\":\""+this.usercnt+"\"";
         }else if(type==1){
             param = String.valueOf(this.usercntsw)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.rspwrdeltasw);;
-            idtype = ",\"idtype\":\"interference\""+",\"ulcellmaxinterference\":\""+this.ulcellmaxinterference+"\""
+            idtype = ",\"idtype\":\"interference\""+",\"interferenceSW\":\""+this.openClose+"\",\"ulcellmaxinterference\":\""+this.ulcellmaxinterference+"\""
                     +",\"usercnt\":\""+this.usercnt+"\""+",\"rsrpdelta\":\""+this.rsrpdelta+"\""+",\"srspwrdeltasw\":\""+this.srspwrdeltasw+"\"";
         }else if(type==2){
             param = String.valueOf(this.usercntsw)+String.valueOf(this.rsrpdeltasw);
-            idtype = ",\"idtype\":\"user\""+",\"maxcelluser\":\""+this.maxcelluser+"\""+",\"neibouruserrate\":\""
+            idtype = ",\"idtype\":\"user\""+",\"userCntSW\":\""+this.openClose+"\",\"maxcelluser\":\""+this.maxcelluser+"\""+",\"neibouruserrate\":\""
                     +this.neibouruserrate+"\""+",\"ulrbmaxrate\":\""+this.ulrbmaxrate+"\""+",\"usercnt\":\""
                     +this.usercnt+"\""+",\"rsrpdelta\":\""+this.rsrpdelta+"\"";
         }else {
@@ -68,6 +70,31 @@ public class HeavyLoadParam implements Serializable  {
         }
         this.effecttype = Util.binaryToDecimal(param);
         String result =idtype+",\"effecttype\":\""+this.effecttype+"\"}";
+        return  result;
+    }
+
+    //获取参数
+    public  String getIntParam(){
+        String param = null;
+        String idtype = null;
+        if(type==0){
+            param = String.valueOf(this.usercntsw);
+            idtype = ",\"idtype\":\"fcnuser\""+",\"userBalcSwitch\":"+this.openClose+",\"ulrbmaxrate\":"+this.ulrbmaxrate+",\"dlrbmaxrate\":"
+                    +this.dlrbmaxrate+",\"usercnt\":"+this.usercnt;
+        }else if(type==1){
+            param = String.valueOf(this.usercntsw)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.rspwrdeltasw);;
+            idtype = ",\"idtype\":\"interference\""+",\"interferenceSW\":"+this.openClose+",\"ulcellmaxinterference\":"+this.ulcellmaxinterference
+                    +",\"usercnt\":"+this.usercnt+",\"rsrpdelta\":"+this.rsrpdelta+",\"srspwrdeltasw\":"+this.srspwrdeltasw;
+        }else if(type==2){
+            param = String.valueOf(this.usercntsw)+String.valueOf(this.rsrpdeltasw);
+            idtype = ",\"idtype\":\"user\""+",\"userCntSW\":"+this.openClose+",\"maxcelluser\":"+this.maxcelluser+",\"neibouruserrate\":"
+                    +this.neibouruserrate+",\"ulrbmaxrate\":"+this.ulrbmaxrate+",\"usercnt\":"
+                    +this.usercnt+",\"rsrpdelta\":"+this.rsrpdelta;
+        }else {
+            return null;
+        }
+        this.effecttype = Util.binaryToDecimal(param);
+        String result =idtype+",\"effecttype\":"+this.effecttype+"}";
         return  result;
     }
 
