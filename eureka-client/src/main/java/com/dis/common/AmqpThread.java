@@ -262,7 +262,8 @@ public class AmqpThread extends Thread {
             String ucULRbRate = loc.getString("ucULRbRate");
             lm.setUcULRbRate(ucULRbRate);
         }
-        if(loc.containsKey("ucDLRbRate")){
+        if(loc.containsKey("" +
+                "")){
             String ucDLRbRate = loc.getString("ucDLRbRate");
             lm.setUcDLRbRate(ucDLRbRate);
         }

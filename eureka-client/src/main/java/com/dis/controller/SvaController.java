@@ -33,7 +33,7 @@ public class SvaController {
         heavyLoadParam.setRspwrdeltasw(1);
         heavyLoadParam.setRsrpdelta(2);
         heavyLoadParam.setRsrpdeltasw(1);
-        heavyLoadParam.setSrspwrdeltasw(1);
+        heavyLoadParam.setRspwrdelta(1);
         heavyLoadParam.setType(1);
         heavyLoadParam.setUlcellmaxinterference(-115);
         heavyLoadParam.setUlrbmaxrate(50);
@@ -53,7 +53,7 @@ public class SvaController {
         heavyLoadParam.setRspwrdeltasw(1);
         heavyLoadParam.setRsrpdelta(2);
         heavyLoadParam.setRsrpdeltasw(1);
-        heavyLoadParam.setSrspwrdeltasw(1);
+        heavyLoadParam.setRspwrdelta(1);
         heavyLoadParam.setType(1);
         heavyLoadParam.setUlcellmaxinterference(-115);
         heavyLoadParam.setUlrbmaxrate(50);
@@ -73,7 +73,7 @@ public class SvaController {
         heavyLoadParam.setRspwrdeltasw(1);
         heavyLoadParam.setRsrpdelta(2);
         heavyLoadParam.setRsrpdeltasw(1);
-        heavyLoadParam.setSrspwrdeltasw(1);
+        heavyLoadParam.setRspwrdelta(1);
         heavyLoadParam.setType(0);
         heavyLoadParam.setUlcellmaxinterference(-115);
         heavyLoadParam.setUlrbmaxrate(50);
@@ -93,7 +93,7 @@ public class SvaController {
         heavyLoadParam.setRspwrdeltasw(1);
         heavyLoadParam.setRsrpdelta(2);
         heavyLoadParam.setRsrpdeltasw(1);
-        heavyLoadParam.setSrspwrdeltasw(1);
+        heavyLoadParam.setRspwrdelta(1);
         heavyLoadParam.setType(2);
         heavyLoadParam.setUlcellmaxinterference(-115);
         heavyLoadParam.setUlrbmaxrate(50);
