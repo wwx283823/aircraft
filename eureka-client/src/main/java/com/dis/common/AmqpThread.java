@@ -5,6 +5,7 @@ import com.dis.entity.Sva;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.qpid.QpidException;
 import org.apache.qpid.client.AMQAnyDestination;
@@ -242,31 +243,98 @@ public class AmqpThread extends Thread {
 
     private boolean parseHperfData(JSONObject loc, HeavyLoad lm){
         // 设置LocationModel
-        if(loc.containsKey("Timestamp")){
-            long timestamp = loc.getLong("Timestamp");
-            lm.setTimestamp(Util.dateStringFormat(Util.dateFormat(timestamp,Params.YYYYMMDDHHMMSS),Params.YYYYMMDDHHMMSS));
+        if(loc.containsKey("hperfstream")){
+            JSONArray jsonArray = loc.getJSONArray("hperfstream");
+            for (int i=0;i<jsonArray.size();i++){
+                JSONObject jsObject = jsonArray.getJSONObject(i);
+                if(jsObject.containsKey("wirelessInfo")){
+                    Long result = getJsonByStr(jsObject,"ulServiceCellId");
+                    if(result!=null){
+                        long ulServiceCellId = result;
+                    }
+                    result = getJsonByStr(jsObject,"uleNodebId");
+                    if(result!=null){
+                        long uleNodebId = Integer.parseInt(result.toString());
+                    }
+                    JSONArray jsonArray1 = jsObject.getJSONArray("wirelessInfo");
+                    for (int j=0;j<jsonArray1.size();j++){
+                        JSONObject jsonObject = jsonArray1.getJSONObject(j);
+                        Long result1 = getJsonByStr(jsObject,"ULCellInterference");
+                        if(result1!=null){
+                            long ULCellInterference = result1;
+                        }
+                       result1 = getJsonByStr(jsObject,"ucDLAvgMcs");
+                        if(result1!=null){
+                            long ucDLAvgMcs =result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"ucDLRbRate");
+                        if(result1!=null){
+                            long ucDLRbRate = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"ucULAvgMcs");
+                        if(result1!=null){
+                            long ucULAvgMcs = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"ucULRbRate");
+                        if(result1!=null){
+                            long ucULRbRate = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"ulActiveUserNum");
+                        if(result1!=null){
+                            long ulActiveUserNum = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"ulULActiveUserAvgRate");
+                        if(result1!=null){
+                            long ulULActiveUserAvgRate = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"ulULCellTraffic");
+                        if(result1!=null){
+                            long ulULCellTraffic = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"usAvgUserNum");
+                        if(result1!=null){
+                            long usAvgUserNum = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"usCpuRate");
+                        if(result1!=null){
+                            long usCpuRate = result1;
+                        }
+                        result1 = getJsonByStr(jsObject,"usMaxUserNum");
+                        if(result1!=null){
+                            long usMaxUserNum = result1;
+                        }
+
+                    }
+                }
+            }
+        }else{
+            return  false;
         }
-        if(loc.containsKey("svcCellId")){
-            long svcCellId = loc.getLong("svcCellId");
-            lm.setSvcCellId(svcCellId);
-        }
-        if(loc.containsKey("userCnt")){
-            int userCnt = loc.getInt("userCnt");
-            lm.setUserCnt(userCnt);
-        }
-        if(loc.containsKey("ULCellInterference")){
-            String ULCellInterference = loc.getString("ULCellInterference");
-            lm.setULCellInterference(ULCellInterference);
-        }
-        if(loc.containsKey("ucULRbRate")){
-            String ucULRbRate = loc.getString("ucULRbRate");
-            lm.setUcULRbRate(ucULRbRate);
-        }
-        if(loc.containsKey("" +
-                "")){
-            String ucDLRbRate = loc.getString("ucDLRbRate");
-            lm.setUcDLRbRate(ucDLRbRate);
-        }
+//        if(loc.containsKey("Timestamp")){
+//            long timestamp = loc.getLong("Timestamp");
+//            lm.setTimestamp(Util.dateStringFormat(Util.dateFormat(timestamp,Params.YYYYMMDDHHMMSS),Params.YYYYMMDDHHMMSS));
+//        }
+//        if(loc.containsKey("svcCellId")){
+//            long svcCellId = loc.getLong("svcCellId");
+//            lm.setSvcCellId(svcCellId);
+//        }
+//        if(loc.containsKey("userCnt")){
+//            int userCnt = loc.getInt("userCnt");
+//            lm.setUserCnt(userCnt);
+//        }
+//        if(loc.containsKey("ULCellInterference")){
+//            String ULCellInterference = loc.getString("ULCellInterference");
+//            lm.setULCellInterference(ULCellInterference);
+//        }
+//        if(loc.containsKey("ucULRbRate")){
+//            String ucULRbRate = loc.getString("ucULRbRate");
+//            lm.setUcULRbRate(ucULRbRate);
+//        }
+//        if(loc.containsKey("" +
+//                "")){
+//            String ucDLRbRate = loc.getString("ucDLRbRate");
+//            lm.setUcDLRbRate(ucDLRbRate);
+//        }
         return true;
     }
 
@@ -364,10 +432,7 @@ public class AmqpThread extends Thread {
     
     /**   
      * @Title: parseLocation   
-     * @Description: 将json数据转换为LocationModel  
-     * @param loc
-     * @param lm
-     * @param svaId
+     * @Description: 将json数据转换为LocationModel
      * @return：boolean       
      * @throws   
      */ 
@@ -403,4 +468,14 @@ public class AmqpThread extends Thread {
 //
 //        return true;
 //    }
+
+    private Long getJsonByStr(JSONObject jsonObject,String str){
+        if(jsonObject.containsKey(str))
+        {
+            long  result = jsonObject.getLong(str);
+            return  result;
+        }else {
+            return null;
+        }
+    }
 }
