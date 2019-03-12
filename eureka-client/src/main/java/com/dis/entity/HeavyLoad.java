@@ -18,12 +18,12 @@ public class HeavyLoad  implements Serializable  {
 
     private Long svcCellId;
     //用户数
-    private int userCnt;
+    private Long userCnt;
 
     //干扰率
-    private String ULCellInterference;
+    private Long cellInterference;
     //上行rpr利用率
-    private String ucULRbRate;
+    private Long ucULRbRate;
     //下行rpr利用率
-    private String ucDLRbRate;
+    private Long ucDLRbRate;
 }

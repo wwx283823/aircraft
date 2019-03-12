@@ -193,6 +193,45 @@ public class MongodbUtils {
         List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass());
         return resultList;
     }
+    /**
+     * 根据条件查询出所有结果集 集合为数据对象中@Document 注解所配置的collection
+     *
+     * @param obj
+     *            数据对象
+     * @param findKeys
+     *            查询条件 key
+     * @param findValues
+     *            查询条件 value
+     * @return 大于
+     */
+    public static List<? extends Object> findByGt(Object obj, String[] findKeys, Object[] findValues,String collectionName) {
+
+        Criteria criteria = null;
+        for (int i = 0; i < findKeys.length; i++) {
+            if (i == 0) {
+                criteria = Criteria.where(findKeys[i]).gt((findValues[i]));
+            } else {
+                criteria.and(findKeys[i]).gt(findValues[i]);
+            }
+        }
+        Query query = Query.query(criteria);
+        List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass(),collectionName);
+        return resultList;
+    }
+    public static List<? extends Object> findByGt(Object obj, String[] findKeys, Object[] findValues) {
+
+        Criteria criteria = null;
+        for (int i = 0; i < findKeys.length; i++) {
+            if (i == 0) {
+                criteria = Criteria.where(findKeys[i]).gt((findValues[i]));
+            } else {
+                criteria.and(findKeys[i]).gt(findValues[i]);
+            }
+        }
+        Query query = Query.query(criteria);
+        List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass());
+        return resultList;
+    }
 
     /**
      * 指定集合 根据条件查询出所有结果集

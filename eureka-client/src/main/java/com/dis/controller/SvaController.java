@@ -40,12 +40,14 @@ public class SvaController {
             wirelessInfo.setUcULAvgMcs(i+3);
             wirelessInfo.setUcULRbRate(i+4);
             wirelessInfo.setUlActiveUserNum(i+5);
-            wirelessInfo.setULCellInterference(-i-6);
+            wirelessInfo.setUlCellInterference(-i-6);
             wirelessInfo.setUlULActiveUserAvgRate(i+7);
             wirelessInfo.setUlULCellTraffic(i+8);
             wirelessInfo.setUsAvgUserNum(i+9);
             wirelessInfo.setUsCpuRate(i+10);
             wirelessInfo.setUsMaxUserNum(i+11);
+            wirelessInfo.setUlServiceCellId(i+12);
+            wirelessInfo.setUleNodebId(i+13);
             list.add(wirelessInfo);
         }
         MongodbUtils.saveList(list);

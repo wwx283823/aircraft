@@ -2,6 +2,7 @@ package com.dis.common;
 
 import com.dis.entity.HeavyLoad;
 import com.dis.entity.Sva;
+import com.dis.entity.WirelessInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -223,25 +224,25 @@ public class AmqpThread extends Thread {
     private void saveHperfstream(JSONObject result)
     {
         JSONArray list = result.getJSONArray("hperfstream");
-        List<HeavyLoad> heavyLoadList = new ArrayList<HeavyLoad>();
+        List<WirelessInfo> wirelessInfos = new ArrayList<WirelessInfo>();
         for(int i = 0; i<list.size();i++){
-            HeavyLoad lm = new HeavyLoad();
+            WirelessInfo lm = new WirelessInfo();
             JSONObject loc = list.getJSONObject(i);
             if(!parseHperfData(loc, lm)){
                 continue;
             }
             if(lm!=null){
-                heavyLoadList.add(lm);
+                wirelessInfos.add(lm);
             }
         }
-        if (heavyLoadList!=null&&heavyLoadList.size()>0) {
+        if (wirelessInfos!=null&&wirelessInfos.size()>0) {
             log.info("hperfstream insert start!");
-            MongodbUtils.saveList(heavyLoadList);
+            MongodbUtils.saveList(wirelessInfos);
             log.debug("hperfstream insert end!");
         }
     }
 
-    private boolean parseHperfData(JSONObject loc, HeavyLoad lm){
+    private boolean parseHperfData(JSONObject loc, WirelessInfo lm){
         // 设置LocationModel
         if(loc.containsKey("hperfstream")){
             JSONArray jsonArray = loc.getJSONArray("hperfstream");
@@ -251,10 +252,12 @@ public class AmqpThread extends Thread {
                     Long result = getJsonByStr(jsObject,"ulServiceCellId");
                     if(result!=null){
                         long ulServiceCellId = result;
+                        lm.setUlServiceCellId(ulServiceCellId);
                     }
                     result = getJsonByStr(jsObject,"uleNodebId");
                     if(result!=null){
                         long uleNodebId = Integer.parseInt(result.toString());
+                        lm.setUleNodebId(uleNodebId);
                     }
                     JSONArray jsonArray1 = jsObject.getJSONArray("wirelessInfo");
                     for (int j=0;j<jsonArray1.size();j++){
@@ -262,46 +265,57 @@ public class AmqpThread extends Thread {
                         Long result1 = getJsonByStr(jsObject,"ULCellInterference");
                         if(result1!=null){
                             long ULCellInterference = result1;
+                            lm.setUlCellInterference(ULCellInterference);
                         }
                        result1 = getJsonByStr(jsObject,"ucDLAvgMcs");
                         if(result1!=null){
                             long ucDLAvgMcs =result1;
+                            lm.setUcDLAvgMcs(ucDLAvgMcs);
                         }
                         result1 = getJsonByStr(jsObject,"ucDLRbRate");
                         if(result1!=null){
                             long ucDLRbRate = result1;
+                            lm.setUcDLRbRate(ucDLRbRate);
                         }
                         result1 = getJsonByStr(jsObject,"ucULAvgMcs");
                         if(result1!=null){
                             long ucULAvgMcs = result1;
+                            lm.setUcULAvgMcs(ucULAvgMcs);
                         }
                         result1 = getJsonByStr(jsObject,"ucULRbRate");
                         if(result1!=null){
                             long ucULRbRate = result1;
+                            lm.setUcULRbRate(ucULRbRate);
                         }
                         result1 = getJsonByStr(jsObject,"ulActiveUserNum");
                         if(result1!=null){
                             long ulActiveUserNum = result1;
+                            lm.setUlActiveUserNum(ulActiveUserNum);
                         }
                         result1 = getJsonByStr(jsObject,"ulULActiveUserAvgRate");
                         if(result1!=null){
                             long ulULActiveUserAvgRate = result1;
+                            lm.setUlULActiveUserAvgRate(ulULActiveUserAvgRate);
                         }
                         result1 = getJsonByStr(jsObject,"ulULCellTraffic");
                         if(result1!=null){
                             long ulULCellTraffic = result1;
+                            lm.setUlULCellTraffic(ulULCellTraffic);
                         }
                         result1 = getJsonByStr(jsObject,"usAvgUserNum");
                         if(result1!=null){
                             long usAvgUserNum = result1;
+                            lm.setUsAvgUserNum(usAvgUserNum);
                         }
                         result1 = getJsonByStr(jsObject,"usCpuRate");
                         if(result1!=null){
                             long usCpuRate = result1;
+                            lm.setUsCpuRate(usCpuRate);
                         }
                         result1 = getJsonByStr(jsObject,"usMaxUserNum");
                         if(result1!=null){
                             long usMaxUserNum = result1;
+                            lm.setUsMaxUserNum(usMaxUserNum);
                         }
 
                     }

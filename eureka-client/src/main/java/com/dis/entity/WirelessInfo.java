@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class WirelessInfo implements Serializable {
     @Id
     private String  _id;
-    private long ULCellInterference;
+    private long ulCellInterference;
     private long ucDLAvgMcs;
     private long ucDLRbRate;
     private long ucULAvgMcs;
@@ -22,4 +22,6 @@ public class WirelessInfo implements Serializable {
     private long usAvgUserNum;
     private long usCpuRate;
     private long usMaxUserNum;
+    private long ulServiceCellId;
+    private long uleNodebId;
 }

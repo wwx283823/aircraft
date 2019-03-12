@@ -690,20 +690,4 @@ public class SubscriptionService extends HttpsService  {
 //            }
 //    }
 
-    private void insertHeavyLoad(){
-        List<HeavyLoad> list = new ArrayList<HeavyLoad>();
-        for (int i = 0 ;i<5;i++){
-            HeavyLoad heavyLoad = new HeavyLoad();
-            heavyLoad.setUserCnt(25);
-            heavyLoad.setULCellInterference("-90");
-            heavyLoad.setUcULRbRate("1");
-            heavyLoad.setUcDLRbRate("-1");
-            heavyLoad.setSvcCellId((long)123456);
-            heavyLoad.setTimestamp(new Date());
-//            MongodbUtils.save(heavyLoad);
-            list.add(heavyLoad);
-        }
-
-        MongodbUtils.saveList(list);
-    }
 }
