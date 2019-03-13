@@ -7,6 +7,7 @@ import com.dis.entity.WirelessInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -15,26 +16,32 @@ public class WirelessInfoController {
 
     @RequestMapping("/getWirelessInfoByParam")
     public List<WirelessInfo> getWirelessInfoByParam(HeavyLoad heavyLoad){
-        String[] keys = new String[4];
-        Long[] values = new Long[4];
+        List<String> listKey = new ArrayList<String>();
+        List<Long> listValue = new ArrayList<Long>();
         if(heavyLoad.getUcDLRbRate()!=null){
-            values[0] = heavyLoad.getUcDLRbRate();
-            keys[0] = "ucDLRbRate";
+            listKey.add("ucDLRbRate");
+            listValue.add(heavyLoad.getUcDLRbRate());
         }
         if(heavyLoad.getCellInterference()!=null){
-            values[1] = heavyLoad.getCellInterference();
-            keys[1] = "ulCellInterference";
+            listKey.add("ulCellInterference");
+            listValue.add( heavyLoad.getCellInterference());
         }
         if(heavyLoad.getUcULRbRate()!=null){
-            values[2] = heavyLoad.getUcULRbRate();
-            keys[2] = "ucULRbRate";
+            listKey.add("ucULRbRate");
+            listValue.add(heavyLoad.getUcULRbRate());
         }
         if(heavyLoad.getUserCnt()!=null){
-            values[3] =heavyLoad.getUserCnt();
-            keys[3] = "usMaxUserNum";
+            listKey.add("usMaxUserNum");
+            listValue.add(heavyLoad.getUserCnt());
         }
-        List<WirelessInfo> wirelessInfoList = (List<WirelessInfo>)MongodbUtils.findByGt(new WirelessInfo(),keys,values);
-        return  wirelessInfoList;
+        if(listKey.size()>0&&listValue.size()>0){
+            String[] keys = listKey.toArray(new String[listKey.size()]);
+            Long[] values = listValue.toArray(new Long[listValue.size()]);
+            List<WirelessInfo> wirelessInfoList = (List<WirelessInfo>)MongodbUtils.findByGt(new WirelessInfo(),keys,values);
+            return  wirelessInfoList;
+        }else {
+            return  null;
+        }
     }
 
     @RequestMapping("/getWirelessInfos")
