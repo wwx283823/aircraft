@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -48,6 +51,7 @@ public class SvaController {
             wirelessInfo.setUsMaxUserNum(i+11);
             wirelessInfo.setUlServiceCellId(i+12);
             wirelessInfo.setUleNodebId(i+13);
+            wirelessInfo.setTimestamp(new Date());
             list.add(wirelessInfo);
         }
         MongodbUtils.saveList(list);

@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -268,11 +269,11 @@ public class AmqpThread extends Thread {
                     for (int j=0;j<jsonArray1.size();j++){
                         if(j>0){
                             lm = new WirelessInfo();
-                            lm.setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+                            lm.setTimestamp(new Date());
                             lm.setUlServiceCellId(ulServiceCellId);
                             lm.setUleNodebId(uleNodebId);
                         }else{
-                            lm.setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+                            lm.setTimestamp(new Date());
                         }
                         JSONObject jsonObject = jsonArray1.getJSONObject(j);
                         Long result1 = getJsonByStr(jsObject,"ULCellInterference");

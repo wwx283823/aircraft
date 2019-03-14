@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -33,26 +34,26 @@ public class BigTalkController {
     }
 
     @RequestMapping("/getHistoryBigTalkByCellId")
-    public List<HeavyLoadParam> getHistoryBigTalkByCellId(Long cellId){
+    public List<HeavyLoadParam> getHistoryBigTalkByCellId(HeavyLoadParam heavyLoad){
         HeavyLoadParam heavyLoadParam = null;
         if(heavyLoadParam==null){
             heavyLoadParam = new HeavyLoadParam();
         }
         String[] keys = {"cellId"};
-        Long[]  values = {cellId};
+        String[]  values = {heavyLoad.getCellId()};
         List<HeavyLoadParam> list = (List<HeavyLoadParam>) MongodbUtils.find(heavyLoadParam,keys,values,"HeavyLoadParamHistory");
         return list;
     }
 
     @RequestMapping("/getEchartsDataByCellId")
-    public List<WirelessInfo> getEchartsDataByCellId(long cellId){
+    public List<WirelessInfo> getEchartsDataByCellId(WirelessInfo wirelessInfos){
         WirelessInfo wirelessInfo = null;
         if(wirelessInfo==null){
             wirelessInfo = new WirelessInfo();
         }
-        long timestamp = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-60*1000;
-        String[] keys = {"cellId","timestamp"};
-        Long[]  values = {cellId,timestamp};
+        Date timestamp = new Date(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-60*1000);
+        String[] keys = {"ulServiceCellId","timestamp"};
+        Object[]  values = {wirelessInfos.getUlServiceCellId(),timestamp};
         List<WirelessInfo> list = (List<WirelessInfo>)MongodbUtils.findByCellIdAndGt(wirelessInfo,keys,values,"timestamp");
         return list;
     }
@@ -60,9 +61,9 @@ public class BigTalkController {
     @RequestMapping("/refreshEchartsDataByCellId")
     public WirelessInfo refreshEchartsDataByCellId(WirelessInfo wirelessInfo){
         long ulServiceCellId = wirelessInfo.getUlServiceCellId();
-        long timestamp = wirelessInfo.getTimestamp();
+        Date timestamp = wirelessInfo.getTimestamp();
         String[] keys = {"ulServiceCellId","timestamp"};
-        Long[]  values = {ulServiceCellId,timestamp};
+        Object[]  values = {ulServiceCellId,timestamp};
         WirelessInfo wirelessInfo1 = (WirelessInfo)MongodbUtils.findOne(wirelessInfo,keys,values);
         return wirelessInfo1;
     }
