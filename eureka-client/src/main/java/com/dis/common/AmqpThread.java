@@ -18,6 +18,8 @@ import org.springframework.boot.system.ApplicationHome;
 import javax.jms.*;
 import java.io.File;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -227,12 +229,13 @@ public class AmqpThread extends Thread {
         List<WirelessInfo> wirelessInfos = new ArrayList<WirelessInfo>();
         for(int i = 0; i<list.size();i++){
             WirelessInfo lm = new WirelessInfo();
+            List<WirelessInfo> wirelessInfoList = new ArrayList<WirelessInfo>();
             JSONObject loc = list.getJSONObject(i);
-            if(!parseHperfData(loc, lm)){
+            if(!parseHperfData(loc, lm,wirelessInfoList)){
                 continue;
             }
-            if(lm!=null){
-                wirelessInfos.add(lm);
+            if(wirelessInfoList!=null&&wirelessInfoList.size()>0){
+                wirelessInfos.addAll(wirelessInfoList);
             }
         }
         if (wirelessInfos!=null&&wirelessInfos.size()>0) {
@@ -242,25 +245,35 @@ public class AmqpThread extends Thread {
         }
     }
 
-    private boolean parseHperfData(JSONObject loc, WirelessInfo lm){
+    private boolean parseHperfData(JSONObject loc, WirelessInfo lm,List<WirelessInfo> list){
         // 设置LocationModel
         if(loc.containsKey("hperfstream")){
             JSONArray jsonArray = loc.getJSONArray("hperfstream");
             for (int i=0;i<jsonArray.size();i++){
                 JSONObject jsObject = jsonArray.getJSONObject(i);
                 if(jsObject.containsKey("wirelessInfo")){
+                    long uleNodebId = 0;
+                    long ulServiceCellId = 0;
                     Long result = getJsonByStr(jsObject,"ulServiceCellId");
                     if(result!=null){
-                        long ulServiceCellId = result;
+                        ulServiceCellId = result;
                         lm.setUlServiceCellId(ulServiceCellId);
                     }
                     result = getJsonByStr(jsObject,"uleNodebId");
                     if(result!=null){
-                        long uleNodebId = Integer.parseInt(result.toString());
+                        uleNodebId = Integer.parseInt(result.toString());
                         lm.setUleNodebId(uleNodebId);
                     }
                     JSONArray jsonArray1 = jsObject.getJSONArray("wirelessInfo");
                     for (int j=0;j<jsonArray1.size();j++){
+                        if(j>0){
+                            lm = new WirelessInfo();
+                            lm.setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+                            lm.setUlServiceCellId(ulServiceCellId);
+                            lm.setUleNodebId(uleNodebId);
+                        }else{
+                            lm.setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+                        }
                         JSONObject jsonObject = jsonArray1.getJSONObject(j);
                         Long result1 = getJsonByStr(jsObject,"ULCellInterference");
                         if(result1!=null){
@@ -317,7 +330,7 @@ public class AmqpThread extends Thread {
                             long usMaxUserNum = result1;
                             lm.setUsMaxUserNum(usMaxUserNum);
                         }
-
+                        list.add(lm);
                     }
                 }
             }

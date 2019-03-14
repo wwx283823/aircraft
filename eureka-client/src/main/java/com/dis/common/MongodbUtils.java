@@ -218,6 +218,22 @@ public class MongodbUtils {
         List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass(),collectionName);
         return resultList;
     }
+    public static List<? extends Object> findByCellIdAndGt(Object obj, String[] findKeys, Object[] findValues,String sort) {
+
+        Criteria criteria = null;
+        for (int i = 0; i < findKeys.length; i++) {
+            if (i == 0) {
+                criteria = Criteria.where(findKeys[i]).is((findValues[i]));
+            } else {
+                criteria.and(findKeys[i]).gt(findValues[i]);
+            }
+        }
+        Query query = Query.query(criteria);
+        query.with(new Sort(Direction.ASC, sort));
+        List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass());
+        return resultList;
+    }
+
     public static List<? extends Object> findByGt(Object obj, String[] findKeys, Object[] findValues) {
 
         Criteria criteria = null;
