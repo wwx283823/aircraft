@@ -254,13 +254,13 @@ public class AmqpThread extends Thread {
                 JSONObject jsObject = jsonArray.getJSONObject(i);
                 if(jsObject.containsKey("wirelessInfo")){
                     long uleNodebId = 0;
-                    long ulServiceCellId = 0;
-                    Long result = getJsonByStr(jsObject,"ulServiceCellId");
-                    if(result!=null){
-                        ulServiceCellId = result;
+                    String ulServiceCellId = null;
+                    String result2 = String.valueOf(getJsonByStr(jsObject,"ulServiceCellId"));
+                    if(result2!=null){
+                        ulServiceCellId = result2;
                         lm.setUlServiceCellId(ulServiceCellId);
                     }
-                    result = getJsonByStr(jsObject,"uleNodebId");
+                    Long result = getJsonByStr(jsObject,"uleNodebId");
                     if(result!=null){
                         uleNodebId = Integer.parseInt(result.toString());
                         lm.setUleNodebId(uleNodebId);

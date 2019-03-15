@@ -51,6 +51,7 @@ public class BigTalkController {
         if(wirelessInfo==null){
             wirelessInfo = new WirelessInfo();
         }
+
         Date timestamp = new Date(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-60*1000);
         String[] keys = {"ulServiceCellId","timestamp"};
         Object[]  values = {wirelessInfos.getUlServiceCellId(),timestamp};
@@ -60,7 +61,7 @@ public class BigTalkController {
 
     @RequestMapping("/refreshEchartsDataByCellId")
     public WirelessInfo refreshEchartsDataByCellId(WirelessInfo wirelessInfo){
-        long ulServiceCellId = wirelessInfo.getUlServiceCellId();
+        String ulServiceCellId = wirelessInfo.getUlServiceCellId();
         Date timestamp = wirelessInfo.getTimestamp();
         String[] keys = {"ulServiceCellId","timestamp"};
         Object[]  values = {ulServiceCellId,timestamp};

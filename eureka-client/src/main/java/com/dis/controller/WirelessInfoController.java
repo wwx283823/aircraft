@@ -7,7 +7,10 @@ import com.dis.entity.WirelessInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -17,7 +20,7 @@ public class WirelessInfoController {
     @RequestMapping("/getWirelessInfoByParam")
     public List<WirelessInfo> getWirelessInfoByParam(HeavyLoad heavyLoad){
         List<String> listKey = new ArrayList<String>();
-        List<Long> listValue = new ArrayList<Long>();
+        List<Object> listValue = new ArrayList<Object>();
         if(heavyLoad.getUcDLRbRate()!=null){
             listKey.add("ucDLRbRate");
             listValue.add(heavyLoad.getUcDLRbRate());
@@ -34,9 +37,11 @@ public class WirelessInfoController {
             listKey.add("usMaxUserNum");
             listValue.add(heavyLoad.getUserCnt());
         }
+        listValue.add(new Date(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-60*1000));
+        listKey.add("timestamp");
         if(listKey.size()>0&&listValue.size()>0){
             String[] keys = listKey.toArray(new String[listKey.size()]);
-            Long[] values = listValue.toArray(new Long[listValue.size()]);
+            Object[] values = listValue.toArray(new Object[listValue.size()]);
             List<WirelessInfo> wirelessInfoList = (List<WirelessInfo>)MongodbUtils.findByGt(new WirelessInfo(),keys,values);
             return  wirelessInfoList;
         }else {
@@ -46,7 +51,9 @@ public class WirelessInfoController {
 
     @RequestMapping("/getWirelessInfos")
     public List<WirelessInfo> getWirelessInfos(){
-        List<WirelessInfo> wirelessInfoList = (List<WirelessInfo>)MongodbUtils.findAll(new WirelessInfo());
+        String[]  key ={"timestamp"};
+        Object[] values = {new Date(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-60*1000)};
+        List<WirelessInfo> wirelessInfoList = (List<WirelessInfo>)MongodbUtils.findByGt(new WirelessInfo(),key,values);
         return  wirelessInfoList;
     }
 

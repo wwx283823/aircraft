@@ -49,7 +49,7 @@ public class SvaController {
             wirelessInfo.setUsAvgUserNum(i+9);
             wirelessInfo.setUsCpuRate(i+10);
             wirelessInfo.setUsMaxUserNum(i+11);
-            wirelessInfo.setUlServiceCellId(i+12);
+            wirelessInfo.setUlServiceCellId("cellId"+String.valueOf(i));
             wirelessInfo.setUleNodebId(i+13);
             wirelessInfo.setTimestamp(new Date());
             list.add(wirelessInfo);
