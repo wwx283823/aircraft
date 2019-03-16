@@ -28,9 +28,12 @@ public class BigTalkController {
 
 
     @RequestMapping("/subBigTalkByCellId")
-    public void setBigTalk(HeavyLoadParam heavyLoadParam){
-        subscriptionService.hperfdef(sva,heavyLoadParam);
-        MongodbUtils.save(heavyLoadParam,"HeavyLoadParamHistory");
+    public String setBigTalk(HeavyLoadParam heavyLoadParam){
+        String result = subscriptionService.hperfdef(sva,heavyLoadParam);
+        if("success".equals(result)){
+            MongodbUtils.save(heavyLoadParam,"HeavyLoadParamHistory");
+        }
+        return result;
     }
 
     @RequestMapping("/getHistoryBigTalkByCellId")

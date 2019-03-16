@@ -64,7 +64,7 @@ public class HeavyLoadParam implements Serializable  {
         }else if(type==2){
             param = String.valueOf(this.usercntsw)+0+String.valueOf(this.rspwrdeltasw);
             idtype = ",\"idtype\":\"user\""+",\"userCntSW\":\""+this.openClose+"\",\"maxcelluser\":\""+this.maxcelluser+"\""+",\"neibouruserrate\":\""
-                    +this.neibouruserrate+"\""+",\"rspwrdeltasw\":\""+this.rspwrdeltasw+"\""+",\"usercnt\":\""
+                    +this.neibouruserrate+"\",\"ulrbmaxrate\":\""+this.ulrbmaxrate+"\""+",\"rspwrdeltasw\":\""+this.rspwrdeltasw+"\""+",\"usercnt\":\""
                     +this.usercnt+"\""+",\"rspwrdelta\":\""+this.rspwrdelta+"\"";
         }else {
             return null;
@@ -83,11 +83,11 @@ public class HeavyLoadParam implements Serializable  {
             idtype = ",\"idtype\":\"fcnuser\""+",\"userBalcSwitch\":"+this.openClose+",\"ulrbmaxrate\":"+this.ulrbmaxrate+",\"dlrbmaxrate\":"
                     +this.dlrbmaxrate+",\"usercnt\":"+this.usercnt;
         }else if(type==1){
-            param = String.valueOf(this.usercntsw)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.rspwrdeltasw);;
+            param = String.valueOf(this.rspwrdeltasw)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.usercntsw);;
             idtype = ",\"idtype\":\"interference\""+",\"interferenceSW\":"+this.openClose+",\"ulcellmaxinterference\":"+this.ulcellmaxinterference
                     +",\"usercnt\":"+this.usercnt+",\"rsrpdelta\":"+this.rsrpdelta+",\"rspwrdelta\":"+this.rspwrdelta;
         }else if(type==2){
-            param = String.valueOf(this.usercntsw)+0+String.valueOf(this.rspwrdeltasw);
+            param = String.valueOf(this.rspwrdeltasw)+String.valueOf(this.usercntsw);
             idtype = ",\"idtype\":\"user\""+",\"userCntSW\":"+this.openClose+",\"maxcelluser\":"+this.maxcelluser+",\"neibouruserrate\":"
                     +this.neibouruserrate+",\"rspwrdeltasw\":"+this.rspwrdeltasw+",\"usercnt\":"
                     +this.usercnt+",\"rspwrdelta\":"+this.rspwrdelta;

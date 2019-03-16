@@ -183,7 +183,7 @@ public class SubscriptionService extends HttpsService  {
         }
     }
 
-    public void hperfdef(Sva sva, HeavyLoadParam heavyLoadParam){
+    public String hperfdef(Sva sva, HeavyLoadParam heavyLoadParam){
         log.info("hperfdef started:"
                 + "appName:" + sva.getUsername()
                 + ",ip:" + sva.getIp()
@@ -209,7 +209,7 @@ public class SubscriptionService extends HttpsService  {
 
             if(StringUtils.isEmpty(token)){
                 log.info("hperfdef token got failed:appName:" + sva.getUsername());
-                return;
+                return "failed";
             }
             log.info("hperfdef token got:"+token);
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
@@ -227,22 +227,27 @@ public class SubscriptionService extends HttpsService  {
             int svaString = svaResult.getInt("error_code");
             if (0==svaString) {
                 log.info("hperfdef success!");
+                return "success";
             }
             else{
                 log.info("hperfdef failed!");
+                return "failed";
             }
         }
         catch (IOException e)
         {
             log.error("hperfdef IOException.", e);
+            return "failed";
         }
         catch (KeyManagementException e)
         {
             log.error("hperfdef KeyManagementException.", e);
+            return "failed";
         }
         catch (NoSuchAlgorithmException e)
         {
             log.error("hperfdef NoSuchAlgorithmException.", e);
+            return "failed";
         }
     }
 
