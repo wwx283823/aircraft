@@ -21,6 +21,8 @@ public class HeavyLoadParam implements Serializable  {
     //用户数开关,RSRP门限开关,RS功率开关，三个参数值依次拼接成一个二进制数，比如：用户数开关=1，RSRP门限开关=0，RS功率开关=1，则二进制数为101，
     // 在转换成十进制数，作为参数effecttype的值传上去，effecttype:5
     private int type;
+    private int type1;
+    private int type2;
     //调整策略
     private int effecttype;
     //最大上行干扰门限

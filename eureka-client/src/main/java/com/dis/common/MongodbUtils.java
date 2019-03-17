@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import com.dis.entity.HeavyLoad;
+import com.dis.entity.HighHeavyLoadHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -83,6 +84,11 @@ public class MongodbUtils {
     public static void remove(Object obj) {
 
         mongodbUtils.mongoTemplate.remove(obj);
+    }
+
+    public static void removeAll() {
+
+        mongodbUtils.mongoTemplate.remove(new HighHeavyLoadHistory());
     }
 
     /**
@@ -326,7 +332,7 @@ public class MongodbUtils {
             if (i == 0) {
                 criteria = Criteria.where(findKeys[i]).is(findValues[i]);
             } else {
-                criteria.and(findKeys[i]).is(findValues[i]);
+                criteria.and(findKeys[i]).gt(findValues[i]);
             }
         }
         Query query = Query.query(criteria);

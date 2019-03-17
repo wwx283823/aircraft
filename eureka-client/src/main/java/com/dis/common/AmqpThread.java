@@ -18,6 +18,7 @@ import org.springframework.boot.system.ApplicationHome;
 import javax.jms.*;
 import java.io.File;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -251,11 +252,12 @@ public class AmqpThread extends Thread {
             log.info("parseHperfData wirelessInfo:"+loc.get("wirelessInfo"));
             long uleNodebId = 0;
             String ulServiceCellId = null;
+            DecimalFormat df = new DecimalFormat("0.0");
             try{
                 String result2 = String.valueOf(getJsonByStr(loc,"ulServiceCellId"));
                 if(result2!=null){
                     ulServiceCellId = result2;
-                    lm.setUlServiceCellId(ulServiceCellId);
+                    lm.setUlServiceCellId(String.valueOf(Long.valueOf(ulServiceCellId) & 0xFF));
                 }
                 Long result = getJsonByStr(loc,"uleNodebId");
                 if(result!=null){
@@ -301,7 +303,7 @@ public class AmqpThread extends Thread {
                     }
                     result1 = getJsonByStr(jsonObject,"ulActiveUserNum");
                     if(result1!=null){
-                        long ulActiveUserNum = result1;
+                        long ulActiveUserNum = Long.valueOf(df.format(result1/1000));
                         lm.setUlActiveUserNum(ulActiveUserNum);
                     }
                     result1 = getJsonByStr(jsonObject,"ulULActiveUserAvgRate");

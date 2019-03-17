@@ -2,10 +2,7 @@ package com.dis.controller;
 
 import com.dis.Service.SubscriptionService;
 import com.dis.common.MongodbUtils;
-import com.dis.entity.HeavyLoadParam;
-import com.dis.entity.HighHeavyLoad;
-import com.dis.entity.Sva;
-import com.dis.entity.WirelessInfo;
+import com.dis.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +46,7 @@ public class SvaController {
             wirelessInfo.setUsAvgUserNum(i+9);
             wirelessInfo.setUsCpuRate(i+10);
             wirelessInfo.setUsMaxUserNum(i+11);
-            wirelessInfo.setUlServiceCellId("13363687"+String.valueOf(i));
+            wirelessInfo.setUlServiceCellId(String.valueOf(Integer.parseInt(("13363688"+String.valueOf(i))) & 0xFF));
             wirelessInfo.setUleNodebId(i+13);
             wirelessInfo.setTimestamp(new Date());
             list.add(wirelessInfo);
@@ -96,7 +93,19 @@ public class SvaController {
         subscriptionService.hperfdef(sva,heavyLoadParam);
         return  "success";
     }
-
+    @RequestMapping("/saveHistory")
+    public String saveHistory(){
+        HighHeavyLoadHistory heavyLoadParam = new HighHeavyLoadHistory();
+        heavyLoadParam.setAdjustType(65);
+        heavyLoadParam.setUlSvcCellId(0);
+        heavyLoadParam.setUlDstCellId(22);
+        heavyLoadParam.setUsKickUserCnt(15);
+        heavyLoadParam.setRspwrDelta(1);
+        heavyLoadParam.setRspwrDelta(2);
+        heavyLoadParam.setType("1");
+        MongodbUtils.save(heavyLoadParam);
+        return  "success";
+    }
     @RequestMapping("/hperfdef1")
     public String hperfdef1(){
         HeavyLoadParam heavyLoadParam = new HeavyLoadParam();
