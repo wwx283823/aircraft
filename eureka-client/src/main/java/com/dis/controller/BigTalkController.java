@@ -82,14 +82,14 @@ public class BigTalkController {
         return highHeavyLoadHistories;
     }
     @RequestMapping("/getHistoryBigTalkByCellId")
-    public List<HeavyLoadParam> getHistoryBigTalkByCellId(HeavyLoadParam heavyLoad){
-        HeavyLoadParam heavyLoadParam = null;
-        if(heavyLoadParam==null){
-            heavyLoadParam = new HeavyLoadParam();
+    public List<HighHeavyLoadHistory> getHistoryBigTalkByCellId(HeavyLoad heavyLoad){
+        HighHeavyLoadHistory HighHeavyLoadHistory = null;
+        if(HighHeavyLoadHistory==null){
+            HighHeavyLoadHistory = new HighHeavyLoadHistory();
         }
-        String[] keys = {"cellId"};
-        String[]  values = {heavyLoad.getCellId()};
-        List<HeavyLoadParam> list = (List<HeavyLoadParam>) MongodbUtils.find(heavyLoadParam,keys,values,"HeavyLoadParamHistory");
+        String[] keys = {"ulSvcCellId"};
+        Object[]  values = {heavyLoad.getSvcCellId()};
+        List<HighHeavyLoadHistory> list = (List<HighHeavyLoadHistory>) MongodbUtils.find(HighHeavyLoadHistory,keys,values,"HighHeavyLoadHistory");
         return list;
     }
 

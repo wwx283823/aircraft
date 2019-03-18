@@ -300,7 +300,12 @@ public class SubscriptionService extends HttpsService  {
                     HighHeavyLoadHistory(jsonObj,loadHistories,strType[i]);
                 }
             }
-            MongodbUtils.remove(new HighHeavyLoadHistory());
+            List<HighHeavyLoadHistory> list = (List<HighHeavyLoadHistory>) MongodbUtils.findAll(new HighHeavyLoadHistory());
+            if(list.size()>0){
+                for(HighHeavyLoadHistory highHeavyLoadHistory:list){
+                    MongodbUtils.remove(highHeavyLoadHistory);
+                }
+            }
             MongodbUtils.save(loadHistories);
             return "success";
         }
@@ -326,33 +331,58 @@ public class SubscriptionService extends HttpsService  {
     private void HighHeavyLoadHistory(JSONObject jsonObj, List<HighHeavyLoadHistory> list,String type){
         try{
             if(jsonObj.containsKey("hperfrecord")){
-                JSONArray jsonArray = jsonObj.getJSONArray("hperfrecord");
-                for (int i = 0 ;i<jsonArray.size();i++){
-                    HighHeavyLoadHistory highHeavyLoadHistory = new HighHeavyLoadHistory();
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if(jsonObject.containsKey("timeStamp")){
-                        highHeavyLoadHistory.setTimeStamp(jsonObject.getLong("timeStamp"));
+                JSONArray jsonArray1 = jsonObj.getJSONArray("hperfrecord");
+                log.info("hperfrecord jsonArray1");
+                for (int i = 0 ;i<jsonArray1.size();i++){
+                    JSONObject json = jsonArray1.getJSONObject(i);
+                    if(json.containsKey("records")){
+                        JSONArray jsonArray = json.getJSONArray("records");
+                        for (int j = 0;j<jsonArray.size();j++){
+                            HighHeavyLoadHistory highHeavyLoadHistory = new HighHeavyLoadHistory();
+                            JSONObject jsonObject = jsonArray.getJSONObject(j);
+                            if(jsonObject.containsKey("timeStamp")){
+                                highHeavyLoadHistory.setTimeStamp(jsonObject.getLong("timeStamp"));
+                            }
+                            if(jsonObject.containsKey("adjustType")){
+                                highHeavyLoadHistory.setAdjustType(jsonObject.getLong("adjustType"));
+                                if(jsonObject.getLong("adjustType")==1){
+                                    highHeavyLoadHistory.setType("用户数调整");
+                                }
+                                if(jsonObject.getLong("adjustType")==2){
+                                    highHeavyLoadHistory.setType("RSRP高门限调整");
+                                }
+                                if(jsonObject.getLong("adjustType")==4){
+                                    highHeavyLoadHistory.setType("RS功率调整");
+                                }
+                            }
+                            if(jsonObject.containsKey("ulSvcCellId")){
+                                highHeavyLoadHistory.setUlSvcCellId(jsonObject.getLong("ulSvcCellId"));
+                            }
+                            if(jsonObject.containsKey("ulDstCellId")){
+                                highHeavyLoadHistory.setUlDstCellId(jsonObject.getLong("ulDstCellId"));
+                            }
+                            if(jsonObject.containsKey("usKickUserCnt")){
+                                highHeavyLoadHistory.setUsKickUserCnt(jsonObject.getLong("usKickUserCnt"));
+                            }
+                            if(jsonObject.containsKey("rspwrDelta")){
+                                highHeavyLoadHistory.setRspwrDelta(jsonObject.getLong("rspwrDelta"));
+                            }
+                            if(jsonObject.containsKey("rsrpDelta")){
+                                highHeavyLoadHistory.setRsrpDelta(jsonObject.getLong("rsrpDelta"));
+                            }
+                            if("fcnuser".equals(type)){
+                                highHeavyLoadHistory.setBigType("频点间基于用户数的快速负载均衡");
+                            }
+                            if("user".equals(type)){
+                                highHeavyLoadHistory.setBigType("基于用户数的快速调整");
+                            }
+                            if("interference".equals(type)){
+                                highHeavyLoadHistory.setBigType("基于干扰的快速负载均衡");
+                            }
+                            list.add(highHeavyLoadHistory);
+                        }
                     }
-                    if(jsonObject.containsKey("adjustType")){
-                        highHeavyLoadHistory.setAdjustType(jsonObject.getLong("adjustType"));
-                    }
-                    if(jsonObject.containsKey("ulSvcCellId")){
-                        highHeavyLoadHistory.setUlSvcCellId(jsonObject.getLong("ulSvcCellId"));
-                    }
-                    if(jsonObject.containsKey("ulDstCellId")){
-                        highHeavyLoadHistory.setUlDstCellId(jsonObject.getLong("ulDstCellId"));
-                    }
-                    if(jsonObject.containsKey("usKickUserCnt")){
-                        highHeavyLoadHistory.setUsKickUserCnt(jsonObject.getLong("usKickUserCnt"));
-                    }
-                    if(jsonObject.containsKey("rspwrDelta")){
-                        highHeavyLoadHistory.setRspwrDelta(jsonObject.getLong("rspwrDelta"));
-                    }
-                    if(jsonObject.containsKey("rsrpDelta")){
-                        highHeavyLoadHistory.setRsrpDelta(jsonObject.getLong("rsrpDelta"));
-                    }
-                    highHeavyLoadHistory.setType(type);
-                    list.add(highHeavyLoadHistory);
+
                 }
             }
         }catch (Exception e){

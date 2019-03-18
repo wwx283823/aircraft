@@ -48,7 +48,8 @@ public class AmqpThread extends Thread {
 
     @Autowired
     private MongodbUtils mongodbUtils;
-    
+
+    private DecimalFormat df = null;
     /** 
      * <p>Title: </p> 
      * <p>Description: 构造函数</p>
@@ -89,6 +90,7 @@ public class AmqpThread extends Thread {
      */
     public void run()
     {
+        df = new DecimalFormat("0.0");
         log.info("AmqpThread run sva:"+sva.getIp()+",id："+sva.getId()+",userName:"+sva.getUsername());
         String ip = sva.getIp();
         String id = sva.getId();
@@ -252,7 +254,7 @@ public class AmqpThread extends Thread {
             log.info("parseHperfData wirelessInfo:"+loc.get("wirelessInfo"));
             long uleNodebId = 0;
             String ulServiceCellId = null;
-            DecimalFormat df = new DecimalFormat("0.0");
+
             try{
                 String result2 = String.valueOf(getJsonByStr(loc,"ulServiceCellId"));
                 if(result2!=null){
@@ -308,12 +310,12 @@ public class AmqpThread extends Thread {
                     }
                     result1 = getJsonByStr(jsonObject,"ulULActiveUserAvgRate");
                     if(result1!=null){
-                        long ulULActiveUserAvgRate = result1;
+                        double ulULActiveUserAvgRate = Double.valueOf(df.format(result1/1000));
                         lm.setUlULActiveUserAvgRate(ulULActiveUserAvgRate);
                     }
                     result1 = getJsonByStr(jsonObject,"ulULCellTraffic");
                     if(result1!=null){
-                        long ulULCellTraffic = result1;
+                        double ulULCellTraffic = Double.valueOf(df.format(result1/1000));
                         lm.setUlULCellTraffic(ulULCellTraffic);
                     }
                     result1 = getJsonByStr(jsonObject,"usAvgUserNum");

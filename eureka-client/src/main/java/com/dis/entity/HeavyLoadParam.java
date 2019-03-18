@@ -29,20 +29,38 @@ public class HeavyLoadParam implements Serializable  {
     private int ulcellmaxinterference; //-115dbm
     //上行prb利用率门限
     private int ulrbmaxrate;
+
+    private int ulrbmaxratek;
     //下行prb利用率门限
     private int dlrbmaxrate;
     //用户数开关
     private int usercntsw; //0 关闭，1 开启
+
+    //用户数开关
+    private int usercntswg; //0 关闭，1 开启
+
+    //用户数开关
+    private int usercntswk; //0 关闭，1 开启
+
     //RSRP门限开关
     private int rsrpdeltasw; //0 关闭，1 开启
     //RS功率开关
     private int rspwrdeltasw; //0 关闭，1 开启
+
+    //RS功率开关
+    private int rspwrdeltaswg; //0 关闭，1 开启
     //策略单次调整用户数步长
     private int usercnt;
+
+    private int usercntg;
+
+    private int usercntk;
     //策略单次调整psrp门限步长
     private int rsrpdelta;
     //策略单词调整rs功率步长
     private int rspwrdelta;
+
+    private int rspwrdeltag;
     //小区最大用户数门限
     private int maxcelluser;
     //与邻区用户数超出比例
@@ -60,14 +78,14 @@ public class HeavyLoadParam implements Serializable  {
             idtype = ",\"idtype\":\"fcnuser\""+",\"userBalcSwitch\":\""+this.openClose+"\",\"ulrbmaxrate\":\""+this.ulrbmaxrate+"\""+",\"dlrbmaxrate\":\""
                     +this.dlrbmaxrate+"\""+",\"usercnt\":\""+this.usercnt+"\"";
         }else if(type==1){
-            param = String.valueOf(this.usercntsw)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.rspwrdeltasw);;
+            param = String.valueOf(this.usercntswg)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.rspwrdeltaswg);;
             idtype = ",\"idtype\":\"interference\""+",\"interferenceSW\":\""+this.openClose+"\",\"ulcellmaxinterference\":\""+this.ulcellmaxinterference+"\""
-                    +",\"usercnt\":\""+this.usercnt+"\""+",\"rsrpdelta\":\""+this.rsrpdelta+"\""+",\"rspwrdelta\":\""+this.rspwrdelta+"\"";
+                    +",\"usercnt\":\""+this.usercntg+"\""+",\"rsrpdelta\":\""+this.rsrpdelta+"\""+",\"rspwrdelta\":\""+this.rspwrdeltag+"\"";
         }else if(type==2){
-            param = String.valueOf(this.usercntsw)+0+String.valueOf(this.rspwrdeltasw);
+            param = String.valueOf(this.usercntswk)+0+String.valueOf(this.rspwrdeltasw);
             idtype = ",\"idtype\":\"user\""+",\"userCntSW\":\""+this.openClose+"\",\"maxcelluser\":\""+this.maxcelluser+"\""+",\"neibouruserrate\":\""
-                    +this.neibouruserrate+"\",\"ulrbmaxrate\":\""+this.ulrbmaxrate+"\""+",\"rspwrdeltasw\":\""+this.rspwrdeltasw+"\""+",\"usercnt\":\""
-                    +this.usercnt+"\""+",\"rspwrdelta\":\""+this.rspwrdelta+"\"";
+                    +this.neibouruserrate+"\",\"ulrbmaxrate\":\""+this.ulrbmaxratek+"\""+",\"rspwrdeltasw\":\""+this.rspwrdeltasw+"\""+",\"usercnt\":\""
+                    +this.usercntk+"\""+",\"rspwrdelta\":\""+this.rspwrdelta+"\"";
         }else {
             return null;
         }

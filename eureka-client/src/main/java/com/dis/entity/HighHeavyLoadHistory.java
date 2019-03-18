@@ -20,4 +20,7 @@ public class HighHeavyLoadHistory implements Serializable{
     private long rspwrDelta;
     private long rsrpDelta;
     private String type;
+    private String bigType;
+    private String showValue;
+    private String showTime;
 }

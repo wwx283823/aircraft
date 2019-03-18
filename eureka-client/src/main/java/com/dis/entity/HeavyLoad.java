@@ -20,6 +20,8 @@ public class HeavyLoad  implements Serializable  {
     //用户数
     private Long userCnt;
 
+    private String cellId;
+
     //干扰率
     private Long cellInterference;
     //上行rpr利用率

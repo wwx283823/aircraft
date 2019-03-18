@@ -96,13 +96,15 @@ public class SvaController {
     @RequestMapping("/saveHistory")
     public String saveHistory(){
         HighHeavyLoadHistory heavyLoadParam = new HighHeavyLoadHistory();
-        heavyLoadParam.setAdjustType(65);
-        heavyLoadParam.setUlSvcCellId(0);
+        heavyLoadParam.setAdjustType(1);
+        heavyLoadParam.setUlSvcCellId(16);
         heavyLoadParam.setUlDstCellId(22);
         heavyLoadParam.setUsKickUserCnt(15);
         heavyLoadParam.setRspwrDelta(1);
         heavyLoadParam.setRspwrDelta(2);
-        heavyLoadParam.setType("1");
+        heavyLoadParam.setType("用户数调整");
+        heavyLoadParam.setBigType("频点间基于用户数的快速负载均衡");
+        heavyLoadParam.setTimeStamp(new Date().getTime());
         MongodbUtils.save(heavyLoadParam);
         return  "success";
     }
