@@ -303,7 +303,7 @@ public class AmqpThread extends Thread {
                     }
                     result1 = getJsonByStr(jsonObject,"ulActiveUserNum");
                     if(result1!=null){
-                        long ulActiveUserNum = Long.valueOf(df.format(result1/1000));
+                        double ulActiveUserNum = Double.valueOf(df.format(result1/1000));
                         lm.setUlActiveUserNum(ulActiveUserNum);
                     }
                     result1 = getJsonByStr(jsonObject,"ulULActiveUserAvgRate");

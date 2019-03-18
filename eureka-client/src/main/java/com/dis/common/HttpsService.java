@@ -103,7 +103,9 @@ public abstract class HttpsService {
         if(StringUtils.isNotEmpty(token)){
             con.setRequestProperty("X-Auth-Token", token);
         }
-
+//        if ("GET".equalsIgnoreCase(method)){
+//            con.connect();
+//        }
         // 写入参数
         DataOutputStream out = new DataOutputStream(con.getOutputStream());
         out.write(content.getBytes(charset));

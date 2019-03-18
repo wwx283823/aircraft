@@ -289,7 +289,7 @@ public class SubscriptionService extends HttpsService  {
                         + "\"" + idTypeString;
                 log.info("hperfrecord content:"+content);
                 // 获取订阅ID
-                Map<String,String> subResult = this.httpsPost(url, content, charset,"GET", tokenResult.get("token"),svaSSLVersion);
+                Map<String,String> subResult = this.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
                 log.info("hperfrecord result:" + subResult.get("result"));
                 JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
                 //判断是否订阅成功,成功为0

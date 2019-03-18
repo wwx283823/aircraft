@@ -17,7 +17,7 @@ public class WirelessInfo implements Serializable {
     private long ucDLRbRate;
     private long ucULAvgMcs;
     private long ucULRbRate;
-    private long ulActiveUserNum;
+    private double ulActiveUserNum;
     private long ulULActiveUserAvgRate;
     private long ulULCellTraffic;
     private long usAvgUserNum;
