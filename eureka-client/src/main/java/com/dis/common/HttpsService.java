@@ -124,13 +124,13 @@ public abstract class HttpsService {
             }
             is.close();
             returnVal = outStream.toString(charset);
-            log.info("httpsPost returnVal:"+returnVal+",charset:"+charset);
+//            log.info("httpsPost returnVal:"+returnVal+",charset:"+charset);
         }
         con.disconnect();
 
         result.put("result", returnVal);
         result.put("token", con.getHeaderField("X-Subject-Token"));
-        log.info("httpsPost result:"+result);
+//        log.info("httpsPost result:"+result);
         return result;
     }
 }

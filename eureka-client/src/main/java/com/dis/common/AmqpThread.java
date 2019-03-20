@@ -251,7 +251,6 @@ public class AmqpThread extends Thread {
 
     private boolean parseHperfData(JSONObject loc, WirelessInfo lm,List<WirelessInfo> list){
         if(loc.containsKey("wirelessInfo")){
-            log.info("parseHperfData wirelessInfo:"+loc.get("wirelessInfo"));
             long uleNodebId = 0;
             String ulServiceCellId = null;
 
