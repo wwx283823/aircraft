@@ -17,4 +17,6 @@ public class Echart {
 
     private int refreshs;
 
+    private int selectCount;
+
 }

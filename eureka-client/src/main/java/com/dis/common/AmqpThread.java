@@ -305,17 +305,17 @@ public class AmqpThread extends Thread {
                     }
                     result1 = getJsonByStr(jsonObject,"ulActiveUserNum");
                     if(result1!=null){
-                        double ulActiveUserNum = Double.valueOf(df.format(result1/1000));
+                        double ulActiveUserNum = Double.valueOf(df.format(result1/1000f));
                         lm.setUlActiveUserNum(ulActiveUserNum);
                     }
                     result1 = getJsonByStr(jsonObject,"ulULActiveUserAvgRate");
                     if(result1!=null){
-                        double ulULActiveUserAvgRate = Double.valueOf(df.format(result1/1000));
+                        double ulULActiveUserAvgRate = Double.valueOf(df.format(result1/1000f));
                         lm.setUlULActiveUserAvgRate(ulULActiveUserAvgRate);
                     }
                     result1 = getJsonByStr(jsonObject,"ulULCellTraffic");
                     if(result1!=null){
-                        double ulULCellTraffic = Double.valueOf(df.format(result1/1000));
+                        double ulULCellTraffic = Double.valueOf(df.format(result1/1000f));
                         lm.setUlULCellTraffic(ulULCellTraffic);
                     }
                     result1 = getJsonByStr(jsonObject,"usAvgUserNum");

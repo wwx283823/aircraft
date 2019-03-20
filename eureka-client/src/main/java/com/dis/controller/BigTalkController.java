@@ -36,29 +36,102 @@ public class BigTalkController {
     @RequestMapping("/newSubBigTalkByCellId")
     public Map<String,String> newSubBigTalkByCellId(HeavyLoadParam heavyLoadParam){
         List<HeavyLoadParam> heavyLoadParamList = (List<HeavyLoadParam>) MongodbUtils.findAll(new HeavyLoadParam());
+        HeavyLoadParam oldH = null;
         if(heavyLoadParamList.size()>0){
             for(HeavyLoadParam heavyLoadParam1:heavyLoadParamList){
-                MongodbUtils.remove(heavyLoadParam1);
+                oldH = heavyLoadParam1;
             }
-
         }
-        MongodbUtils.save(heavyLoadParam);
         String result1 = "null";
         String result2 = "null";
         String result = "null";
+//        HeavyLoadParam he = new HeavyLoadParam();
         if(heavyLoadParam.getType1()==1){
             heavyLoadParam.setType(1);
-            result1 = subscriptionService.hperfdef(sva,heavyLoadParam);
+            heavyLoadParam.setOpenClose(1);
+            if(oldH.getType1() == heavyLoadParam.getType1()){
+                oldH.setType(1);
+                oldH.setOpenClose(1);
+                if(!oldH.getIntParam().equals(heavyLoadParam.getIntParam())){
+                    result1 = subscriptionService.hperfdef(sva,heavyLoadParam);
+                }
+            }else{
+                result1 = subscriptionService.hperfdef(sva,heavyLoadParam);
+            }
+//            String ssss = heavyLoadParam.getIntParam();
+        }else{
+            heavyLoadParam.setType(1);
+            heavyLoadParam.setOpenClose(0);
+            if(oldH.getType1() == heavyLoadParam.getType1()){
+                oldH.setType(1);
+                oldH.setOpenClose(0);
+                if(!oldH.getIntParam().equals(heavyLoadParam.getIntParam())){
+                    result1 = subscriptionService.hperfdef(sva,heavyLoadParam);
+                }
+            }else{
+                result1 = subscriptionService.hperfdef(sva,heavyLoadParam);
+            }
+
         }
         if(heavyLoadParam.getType2()==1){
             heavyLoadParam.setType(2);
-            result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
-        }
-        if(heavyLoadParam.getType()==1){
-            heavyLoadParam.setType(0);
-            result = subscriptionService.hperfdef(sva,heavyLoadParam);
-        }
+            heavyLoadParam.setOpenClose(1);
+            if(oldH.getType2() == heavyLoadParam.getType2()){
+                oldH.setType(2);
+                oldH.setOpenClose(1);
+//            String ssss = heavyLoadParam.getIntParam();
+                if(!oldH.getIntParam().equals(heavyLoadParam.getIntParam())){
+                    result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+                }
+            }else{
+                result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+            }
 
+        }else{
+            heavyLoadParam.setType(2);
+            heavyLoadParam.setOpenClose(0);
+            if(oldH.getType2() == heavyLoadParam.getType2()){
+                oldH.setType(2);
+                oldH.setOpenClose(0);
+//            String ssss = heavyLoadParam.getIntParam();
+                if(!oldH.getIntParam().equals(heavyLoadParam.getIntParam())){
+                    result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+                }
+            }else{
+                result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+            }
+
+        }
+        if(heavyLoadParam.getType3()==1){
+            heavyLoadParam.setType(0);
+            heavyLoadParam.setOpenClose(1);
+            if(oldH.getType3() == heavyLoadParam.getType3()){
+                oldH.setType(0);
+                oldH.setOpenClose(1);
+//            String ssss = heavyLoadParam.getIntParam();
+                if(!oldH.getIntParam().equals(heavyLoadParam.getIntParam())){
+                    result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+                }
+            }else{
+                result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+            }
+
+        }else{
+            heavyLoadParam.setType(0);
+            heavyLoadParam.setOpenClose(0);
+            if(oldH.getType3() == heavyLoadParam.getType3()){
+                oldH.setType(0);
+                oldH.setOpenClose(0);
+//            String ssss = heavyLoadParam.getIntParam();
+                if(!oldH.getIntParam().equals(heavyLoadParam.getIntParam())){
+                    result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+                }
+            }else{
+                result2 = subscriptionService.hperfdef(sva,heavyLoadParam);
+            }
+        }
+        MongodbUtils.remove(oldH);
+        MongodbUtils.save(heavyLoadParam);
         Map<String,String> map = new HashMap<String,String>(3);
         map.put("result1",result1);
         map.put("result2",result2);
@@ -89,7 +162,7 @@ public class BigTalkController {
         }
         String[] keys = {"ulSvcCellId"};
         Object[]  values = {heavyLoad.getSvcCellId()};
-        List<HighHeavyLoadHistory> list = (List<HighHeavyLoadHistory>) MongodbUtils.find(HighHeavyLoadHistory,keys,values,"HighHeavyLoadHistory");
+        List<HighHeavyLoadHistory> list = (List<HighHeavyLoadHistory>) MongodbUtils.find(HighHeavyLoadHistory,keys,values,"HighHeavyLoadHistory","timeStamp");
         return list;
     }
 
@@ -139,5 +212,10 @@ public class BigTalkController {
             wirelessInfo1.setTimestamp(addTimes);
         }
         return wirelessInfo1;
+    }
+
+    private boolean isSeam(HeavyLoadParam heavyLoadParamn,HeavyLoadParam heavyLoadParamo){
+
+        return  false;
     }
 }

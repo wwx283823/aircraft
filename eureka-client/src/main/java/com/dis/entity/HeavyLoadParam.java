@@ -23,6 +23,7 @@ public class HeavyLoadParam implements Serializable  {
     private int type;
     private int type1;
     private int type2;
+    private int type3;
     //调整策略
     private int effecttype;
     //最大上行干扰门限
@@ -101,16 +102,36 @@ public class HeavyLoadParam implements Serializable  {
         if(type==0){
             param = String.valueOf(this.usercntsw);
             idtype = ",\"idtype\":\"fcnuser\""+",\"userBalcSwitch\":"+this.openClose+",\"ulrbmaxrate\":"+this.ulrbmaxrate+",\"dlrbmaxrate\":"
-                    +this.dlrbmaxrate+",\"usercnt\":"+this.usercnt;
+                    +this.dlrbmaxrate;
+            if(this.usercntsw!=0){
+                idtype = idtype+",\"usercnt\":"+this.usercnt;
+            }
         }else if(type==1){
-            param = String.valueOf(this.rspwrdeltasw)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.usercntsw);;
-            idtype = ",\"idtype\":\"interference\""+",\"interferenceSW\":"+this.openClose+",\"ulcellmaxinterference\":"+this.ulcellmaxinterference
-                    +",\"usercnt\":"+this.usercnt+",\"rsrpdelta\":"+this.rsrpdelta+",\"rspwrdelta\":"+this.rspwrdelta;
+            param = String.valueOf(this.usercntswg)+String.valueOf(this.rsrpdeltasw)+String.valueOf(this.rspwrdeltaswg);
+            idtype = ",\"idtype\":\"interference\""+",\"interferenceSW\":"+this.openClose+",\"ulcellmaxinterference\":"+this.ulcellmaxinterference;
+            if(this.usercntswg!=0){
+                idtype = idtype+",\"usercnt\":"+this.usercntg;
+            }
+            if(this.rsrpdeltasw!=0){
+                idtype = idtype+ ",\"rsrpdelta\":"+this.rsrpdelta;
+            }
+            if(this.rspwrdeltaswg!=0){
+                idtype = idtype+",\"rspwrdelta\":"+this.rspwrdeltag;
+            }
+//            idtype = ",\"idtype\":\"interference\""+",\"interferenceSW\":"+this.openClose+",\"ulcellmaxinterference\":"+this.ulcellmaxinterference
+//
+//
+//                    +",\"usercnt\":"+this.usercntg+",\"rsrpdelta\":"+this.rsrpdelta+",\"rspwrdelta\":"+this.rspwrdeltag;
         }else if(type==2){
-            param = String.valueOf(this.rspwrdeltasw)+String.valueOf(this.usercntsw);
+            param = String.valueOf(this.usercntswk)+String.valueOf(this.rspwrdeltasw);
             idtype = ",\"idtype\":\"user\""+",\"userCntSW\":"+this.openClose+",\"maxcelluser\":"+this.maxcelluser+",\"neibouruserrate\":"
-                    +this.neibouruserrate+",\"rspwrdeltasw\":"+this.rspwrdeltasw+",\"usercnt\":"
-                    +this.usercnt+",\"rspwrdelta\":"+this.rspwrdelta;
+                    +this.neibouruserrate+",\"rspwrdeltasw\":"+this.rspwrdeltasw;
+            if(this.usercntswk!=0){
+                idtype = idtype+",\"usercnt\":" +this.usercntk;
+            }
+            if(this.rspwrdeltasw!=0){
+                idtype = idtype+",\"rspwrdelta\":"+this.rspwrdelta;
+            }
         }else {
             return null;
         }

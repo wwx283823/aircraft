@@ -34,6 +34,7 @@ public class SvaController {
     public String saveData(){
         List<WirelessInfo> list = new ArrayList<WirelessInfo>();
         for (int i = 0;i<5;i++){
+//            int sss = Math.random()
             WirelessInfo wirelessInfo = new WirelessInfo();
             wirelessInfo.setUcDLAvgMcs(i+1);
             wirelessInfo.setUcDLRbRate(i+2);

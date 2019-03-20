@@ -290,7 +290,7 @@ public class SubscriptionService extends HttpsService  {
                 log.info("hperfrecord content:"+content);
                 // 获取订阅ID
                 Map<String,String> subResult = this.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
-                log.info("hperfrecord result:" + subResult.get("result"));
+//                log.info("hperfrecord result:" + subResult.get("result"));
                 JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
                 //判断是否订阅成功,成功为0
                 JSONObject svaResult =  jsonObj.getJSONObject("result");
@@ -306,8 +306,13 @@ public class SubscriptionService extends HttpsService  {
                     MongodbUtils.remove(highHeavyLoadHistory);
                 }
             }
-            MongodbUtils.save(loadHistories);
-            return "success";
+            if(loadHistories.size()>0){
+                MongodbUtils.saveList(loadHistories);
+                return "success";
+            }else{
+                return "failed";
+            }
+
         }
         catch (IOException e)
         {
@@ -330,9 +335,9 @@ public class SubscriptionService extends HttpsService  {
 
     private void HighHeavyLoadHistory(JSONObject jsonObj, List<HighHeavyLoadHistory> list,String type){
         try{
-            if(jsonObj.containsKey("hperfrecord")){
-                JSONArray jsonArray1 = jsonObj.getJSONArray("hperfrecord");
-                log.info("hperfrecord jsonArray1");
+            if(jsonObj.containsKey("HperfRecord")){
+                JSONArray jsonArray1 = jsonObj.getJSONArray("HperfRecord");
+                log.info("HperfRecord jsonArray1");
                 for (int i = 0 ;i<jsonArray1.size();i++){
                     JSONObject json = jsonArray1.getJSONObject(i);
                     if(json.containsKey("records")){
@@ -341,7 +346,7 @@ public class SubscriptionService extends HttpsService  {
                             HighHeavyLoadHistory highHeavyLoadHistory = new HighHeavyLoadHistory();
                             JSONObject jsonObject = jsonArray.getJSONObject(j);
                             if(jsonObject.containsKey("timeStamp")){
-                                highHeavyLoadHistory.setTimeStamp(jsonObject.getLong("timeStamp"));
+                                highHeavyLoadHistory.setTimeStamp(jsonObject.getLong("timeStamp")*1000);
                             }
                             if(jsonObject.containsKey("adjustType")){
                                 highHeavyLoadHistory.setAdjustType(jsonObject.getLong("adjustType"));
@@ -356,10 +361,10 @@ public class SubscriptionService extends HttpsService  {
                                 }
                             }
                             if(jsonObject.containsKey("ulSvcCellId")){
-                                highHeavyLoadHistory.setUlSvcCellId(jsonObject.getLong("ulSvcCellId"));
+                                highHeavyLoadHistory.setUlSvcCellId(jsonObject.getLong("ulSvcCellId") & 0xFF);
                             }
                             if(jsonObject.containsKey("ulDstCellId")){
-                                highHeavyLoadHistory.setUlDstCellId(jsonObject.getLong("ulDstCellId"));
+                                highHeavyLoadHistory.setUlDstCellId(jsonObject.getLong("ulDstCellId") & 0xFF);
                             }
                             if(jsonObject.containsKey("usKickUserCnt")){
                                 highHeavyLoadHistory.setUsKickUserCnt(jsonObject.getLong("usKickUserCnt"));

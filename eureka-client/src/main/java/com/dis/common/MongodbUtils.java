@@ -255,6 +255,23 @@ public class MongodbUtils {
         List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass());
         return resultList;
     }
+    public static List<? extends Object> findByCellIdAndDescAndLimit(Object obj, String[] findKeys, Object[] findValues,String sort,int limit) {
+
+        Criteria criteria = null;
+        for (int i = 0; i < findKeys.length; i++) {
+            if (i == 0) {
+                criteria = Criteria.where(findKeys[i]).is((findValues[i]));
+            } else {
+                criteria.and(findKeys[i]).gt(findValues[i]);
+            }
+        }
+        Query query = Query.query(criteria);
+        query.with(new Sort(Direction.DESC, sort));
+        query.limit(limit);
+        List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass());
+        return resultList;
+    }
+
 
     public static List<? extends Object> findByGt(Object obj, String[] findKeys, Object[] findValues) {
 
@@ -271,6 +288,37 @@ public class MongodbUtils {
         return resultList;
     }
 
+    public static List<? extends Object> findByGtDesc(Object obj, String[] findKeys, Object[] findValues,String sort) {
+
+        Criteria criteria = null;
+        for (int i = 0; i < findKeys.length; i++) {
+            if (i == 0) {
+                criteria = Criteria.where(findKeys[i]).gt((findValues[i]));
+            } else {
+                criteria.and(findKeys[i]).gt(findValues[i]);
+            }
+        }
+        Query query = Query.query(criteria);
+        query.with(new Sort(Direction.DESC, sort));
+        List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass());
+        return resultList;
+    }
+    public static List<? extends Object> findByGtDescAndLimit(Object obj, String[] findKeys, Object[] findValues,String sort,int limit) {
+
+        Criteria criteria = null;
+        for (int i = 0; i < findKeys.length; i++) {
+            if (i == 0) {
+                criteria = Criteria.where(findKeys[i]).gt((findValues[i]));
+            } else {
+                criteria.and(findKeys[i]).gt(findValues[i]);
+            }
+        }
+        Query query = Query.query(criteria);
+        query.with(new Sort(Direction.DESC, sort));
+        query.limit(limit);
+        List<? extends Object> resultList = mongodbUtils.mongoTemplate.find(query, obj.getClass());
+        return resultList;
+    }
     /**
      * 指定集合 根据条件查询出所有结果集
      *
