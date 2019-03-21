@@ -51,6 +51,7 @@ public class SubscriptionService extends HttpsService  {
 //    }
 
     public void subscribeHeavyLoad(Sva sva){
+
         log.info("subscribeHeavyLoad started:"
                 + "appName:" + sva.getUsername()
                 + ",ip:" + sva.getIp()
@@ -71,6 +72,10 @@ public class SubscriptionService extends HttpsService  {
 //        MongodbUtils.findAll(new HeavyLoad());
 
         try{
+            if(GlobalConf.getAmqpThread(sva.getId())!=null){
+                this.unSubscribeHeavyLoad(sva);
+                Thread.sleep(1000);
+            }
             // 获取token值
             Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
@@ -104,6 +109,8 @@ public class SubscriptionService extends HttpsService  {
 //                        mongodbUtils = new MongodbUtils();
 //                    }
                     log.info("subscribeHeavyLoad AmqpThread");
+                    sva.setTempApp(sva.getUsername2());
+                    sva.setUsername2(null);
                     AmqpThread at = new AmqpThread(sva,queueId);
                     GlobalConf.addAmqpThread(sva.getId(), at);
                     at.start();
@@ -128,6 +135,9 @@ public class SubscriptionService extends HttpsService  {
         catch (NoSuchAlgorithmException e)
         {
             log.error("subscribeHeavyLoad NoSuchAlgorithmException.", e);
+        }catch (InterruptedException e)
+        {
+            log.error("hperfrecord InterruptedException.", e);
         }
     }
 
@@ -252,18 +262,19 @@ public class SubscriptionService extends HttpsService  {
         }
     }
 
-    public String hperfrecord(Sva sva,String[] strType){
+    public void hperfrecord(Sva sva){
         log.info("hperfrecord started:"
-                + "appName:" + sva.getUsername()
+                + "appName:" + sva.getUsername2()
                 + ",ip:" + sva.getIp()
                 + ",port:" + sva.getTokenPort()
         );
+//        sva.setUsername(sva.getUsername2());
         // 获取token地址
         String url = "https://" + sva.getIp() + ":"
                 + sva.getTokenPort() + "/v3/auth/tokens";
         // 获取token参数
         String content = "{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\": {\"user\": {\"domain\": \"Api\",\"name\": \""
-                + sva.getUsername()
+                + sva.getUsername2()
                 + "\",\"password\": \""
                 + sva.getPassword() + "\"}}}}}";
         String charset = "UTF-8";
@@ -272,128 +283,122 @@ public class SubscriptionService extends HttpsService  {
 //        MongodbUtils.findAll(new HeavyLoad());
         try{
             // 获取token值
+            if(GlobalConf.getAmqpThread(sva.getId()+1)!=null){
+                this.unHperfrecord(sva);
+                Thread.sleep(1000);
+            }
             Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
             sva.setToken(token);
             if(StringUtils.isEmpty(token)){
                 log.info("hperfrecord token got failed:appName:" + sva.getUsername());
-                return "failed";
             }
             log.info("hperfrecord token got:"+token);
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
-                    + "/enabler/catalog/hperfrecord/json/v1.0";
-            List<HighHeavyLoadHistory> loadHistories = new ArrayList<HighHeavyLoadHistory>();
-            for(int i = 0;i<strType.length;i++){
-                String idTypeString = ",\"idtype\":\""+strType[i]+"\"}";
-                        content = "{\"APPID\":\"" + sva.getUsername()
-                        + "\"" + idTypeString;
-                log.info("hperfrecord content:"+content);
-                // 获取订阅ID
-                Map<String,String> subResult = this.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
+                    + "/enabler/catalog/hperfrecordreg/json/v1.0";
+            content = "{\"APPID\":\"" + sva.getUsername2() + "\"}";;
+            log.info("hperfrecord content:"+content);
+            // 获取订阅ID
+            Map<String,String> subResult = this.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
 //                log.info("hperfrecord result:" + subResult.get("result"));
-                JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
-                //判断是否订阅成功,成功为0
-                JSONObject svaResult =  jsonObj.getJSONObject("result");
-                int svaString = svaResult.getInt("error_code");
-                if (0==svaString) {
-                    log.info("hperfrecord success!");
-                    HighHeavyLoadHistory(jsonObj,loadHistories,strType[i]);
+            JSONObject jsonObj = JSONObject.fromObject(subResult.get("result"));
+            //判断是否订阅成功,成功为0
+            JSONObject svaResult =  jsonObj.getJSONObject("result");
+            int svaString = svaResult.getInt("error_code");
+            if (0==svaString) {
+                JSONArray list = jsonObj.getJSONArray("Subscribe Information");
+                JSONObject obj = (JSONObject) list.get(0);
+                String queueId = obj.getString("QUEUE_ID");
+                log.info("hperfrecord queueId:" + queueId);
+                // 如果获取queueId，则进入数据对接逻辑
+                if(StringUtils.isNotEmpty(queueId)){
+                    log.info("hperfrecord AmqpThread");
+                    if(sva.getTempApp()!=null&&sva.getTempApp()!=""){
+                        sva.setUsername2(sva.getTempApp());
+                    }else{
+                        if(sva.getUsername2()!=null){
+                            sva.setTempApp(sva.getUsername2());
+                        }
+                    }
+                    AmqpThread at = new AmqpThread(sva,queueId);
+                    GlobalConf.addAmqpThread(sva.getId()+1, at);
+                    at.start();
+                    log.info("hperfrecord starting AmqpThread");
+                }else{
+                    log.info("hperfrecord queueId got failed:appName:" + sva.getUsername());
                 }
-            }
-            List<HighHeavyLoadHistory> list = (List<HighHeavyLoadHistory>) MongodbUtils.findAll(new HighHeavyLoadHistory());
-            if(list.size()>0){
-                for(HighHeavyLoadHistory highHeavyLoadHistory:list){
-                    MongodbUtils.remove(highHeavyLoadHistory);
-                }
-            }
-            if(loadHistories.size()>0){
-                MongodbUtils.saveList(loadHistories);
-                return "success";
-            }else{
-                return "failed";
             }
 
         }
         catch (IOException e)
         {
             log.error("hperfrecord IOException.", e);
-            return "failed";
+
         }
         catch (KeyManagementException e)
         {
             log.error("hperfrecord KeyManagementException.", e);
-            return "failed";
+
         }
         catch (NoSuchAlgorithmException e)
         {
             log.error("hperfrecord NoSuchAlgorithmException.", e);
-            return "failed";
+        }catch (InterruptedException e)
+        {
+            log.error("hperfrecord InterruptedException.", e);
         }
     }
 
-
-
-    private void HighHeavyLoadHistory(JSONObject jsonObj, List<HighHeavyLoadHistory> list,String type){
-        try{
-            if(jsonObj.containsKey("HperfRecord")){
-                JSONArray jsonArray1 = jsonObj.getJSONArray("HperfRecord");
-                log.info("HperfRecord jsonArray1");
-                for (int i = 0 ;i<jsonArray1.size();i++){
-                    JSONObject json = jsonArray1.getJSONObject(i);
-                    if(json.containsKey("records")){
-                        JSONArray jsonArray = json.getJSONArray("records");
-                        for (int j = 0;j<jsonArray.size();j++){
-                            HighHeavyLoadHistory highHeavyLoadHistory = new HighHeavyLoadHistory();
-                            JSONObject jsonObject = jsonArray.getJSONObject(j);
-                            if(jsonObject.containsKey("timeStamp")){
-                                highHeavyLoadHistory.setTimeStamp(jsonObject.getLong("timeStamp")*1000);
-                            }
-                            if(jsonObject.containsKey("adjustType")){
-                                highHeavyLoadHistory.setAdjustType(jsonObject.getLong("adjustType"));
-                                if(jsonObject.getLong("adjustType")==1){
-                                    highHeavyLoadHistory.setType("用户数调整");
-                                }
-                                if(jsonObject.getLong("adjustType")==2){
-                                    highHeavyLoadHistory.setType("RSRP高门限调整");
-                                }
-                                if(jsonObject.getLong("adjustType")==4){
-                                    highHeavyLoadHistory.setType("RS功率调整");
-                                }
-                            }
-                            if(jsonObject.containsKey("ulSvcCellId")){
-                                highHeavyLoadHistory.setUlSvcCellId(jsonObject.getLong("ulSvcCellId") & 0xFF);
-                            }
-                            if(jsonObject.containsKey("ulDstCellId")){
-                                highHeavyLoadHistory.setUlDstCellId(jsonObject.getLong("ulDstCellId") & 0xFF);
-                            }
-                            if(jsonObject.containsKey("usKickUserCnt")){
-                                highHeavyLoadHistory.setUsKickUserCnt(jsonObject.getLong("usKickUserCnt"));
-                            }
-                            if(jsonObject.containsKey("rspwrDelta")){
-                                highHeavyLoadHistory.setRspwrDelta(jsonObject.getLong("rspwrDelta"));
-                            }
-                            if(jsonObject.containsKey("rsrpDelta")){
-                                highHeavyLoadHistory.setRsrpDelta(jsonObject.getLong("rsrpDelta"));
-                            }
-                            if("fcnuser".equals(type)){
-                                highHeavyLoadHistory.setBigType("频点间基于用户数的快速负载均衡");
-                            }
-                            if("user".equals(type)){
-                                highHeavyLoadHistory.setBigType("基于用户数的快速调整");
-                            }
-                            if("interference".equals(type)){
-                                highHeavyLoadHistory.setBigType("基于干扰的快速负载均衡");
-                            }
-                            list.add(highHeavyLoadHistory);
-                        }
-                    }
-
-                }
+    public void unHperfrecord(Sva sva)
+    {
+        log.info("unHperfrecord started!");
+        String url = "";
+        String content = "";
+//        sva.setUsername(sva.getUsername2());
+        try
+        {
+            // 获取token
+            url = "https://" + sva.getIp() + ":"
+                    + sva.getTokenPort() + "/v3/auth/tokens";
+            content = "{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\": {\"user\": {\"domain\": \"Api\",\"name\": \""
+                    + sva.getUsername2()
+                    + "\",\"password\": \""
+                    + sva.getPassword() + "\"}}}}}";
+            String charset = "UTF-8";
+            Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
+            String token = tokenResult.get("token");
+            if(StringUtils.isEmpty(token)){
+                log.error("[unHperfrecord]token got failed:appName:" + sva.getUsername2());
+                return;
             }
-        }catch (Exception e){
-            log.info("hperfrecord error:"+e.getMessage());
+            log.info("[unHperfrecord]token got:"+token);
+
+
+            url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
+                    + "/enabler/catalog/hperfstreamunreg/json/v1.0";
+            content = "{\"APPID\":\"" + sva.getUsername2()  + "\"}";
+            Map<String,String> subResult = this.httpsPost(url, content,charset, "DELETE", token, svaSSLVersion);
+//            log.info("[unHperfrecord]result:" + subResult.get("result"));
+            // 关闭amqp连接
+            GlobalConf.removeAmqpThread(sva.getId()+1);
+            log.info("unHperfrecord remove thread id:"+sva.getId()+1);
         }
-
-
+        catch (KeyManagementException e)
+        {
+            log.error("unHperfrecord KeyManagementException.", e);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            log.error("unHperfrecord NoSuchAlgorithmException.", e);
+        }
+        catch (IOException e)
+        {
+            log.error("unHperfrecord IOException.", e);
+        }
+        catch (Exception e)
+        {
+            log.error("unHperfrecord Exception.", e);
+        }
     }
+
 }

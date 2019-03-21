@@ -18,6 +18,8 @@ public class Sva {
 
     private String username;
 
+    private String username2;
+
     private String password;
 
     private int status; //0关闭，1开启
@@ -33,5 +35,7 @@ public class Sva {
     private String brokerPort;
 
     private String token;
+
+    private String tempApp;
 
 }

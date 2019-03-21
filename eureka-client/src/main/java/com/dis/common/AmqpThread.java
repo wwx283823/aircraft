@@ -1,6 +1,7 @@
 package com.dis.common;
 
 import com.dis.entity.HeavyLoad;
+import com.dis.entity.HighHeavyLoadHistory;
 import com.dis.entity.Sva;
 import com.dis.entity.WirelessInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +68,12 @@ public class AmqpThread extends Thread {
         sva.setTokenPort(svaParam.getTokenPort());
         sva.setType(svaParam.getType());
         sva.setUsername(svaParam.getUsername());
+        if(svaParam.getUsername2()!=null){
+            sva.setUsername(svaParam.getUsername2());
+            sva.setId(svaParam.getId()+1);
+        }
+//        sva.setUsername2(svaParam.getUsername2());
+//        sva.setToken2(svaParam.getToken2());
 //        this.sva = sva;
 //        this.dao = dao;
         this.queueId = queue;
@@ -215,6 +222,13 @@ public class AmqpThread extends Thread {
             if(result.containsKey("hperfstream")){
                 saveHperfstream(result);
             }
+            if(result.containsKey("hperfrecord")){
+                JSONArray jsonArray = result.getJSONArray("hperfrecord");
+                for (int i=0;i<jsonArray.size();i++){
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    saveHperfrecord(jsonObject);
+                }
+            }
 //            // 非匿名化订阅
 //            if(result.containsKey("locationstream")){
 //                saveLocationstream(result, type, svaId);
@@ -225,6 +239,90 @@ public class AmqpThread extends Thread {
 //            }
         }
         log.info("SVA end!");
+    }
+
+    private void saveHperfrecord(JSONObject jsonObj){
+       List<HighHeavyLoadHistory> list = new ArrayList<HighHeavyLoadHistory>();
+       String type = null;
+        try{
+            if(jsonObj.containsKey("HperfRecord")){
+                JSONArray jsonArray1 = jsonObj.getJSONArray("HperfRecord");
+                log.info("HperfRecord jsonArray1");
+                for (int i = 0 ;i<jsonArray1.size();i++){
+                    JSONObject json = jsonArray1.getJSONObject(i);
+                    if(json.containsKey("fcnuser")){
+                        JSONArray jsonArray = json.getJSONArray("fcnuser");
+                        list.addAll(getHeavyLoadHistory(list,jsonArray,"fcnuser"));
+                    }
+                    if(json.containsKey("user")){
+                        JSONArray jsonArray = json.getJSONArray("user");
+                        list.addAll(getHeavyLoadHistory(list,jsonArray,"user"));
+                    }
+                    if(json.containsKey("interference")){
+                        JSONArray jsonArray = json.getJSONArray("interference");
+                        list.addAll(getHeavyLoadHistory(list,jsonArray,"interference"));
+                    }
+                }
+                if(list!=null&&list.size()>0){
+                    log.info("hperfstream insert start!");
+                    MongodbUtils.saveList(list);
+                    log.debug("hperfstream insert end!");
+
+                }
+            }
+        }catch (Exception e){
+            log.info("hperfrecord error:"+e.getMessage());
+        }
+
+
+    }
+
+    private List<HighHeavyLoadHistory> getHeavyLoadHistory(List<HighHeavyLoadHistory> list,JSONArray jsonArray,String type){
+        for (int j = 0;j<jsonArray.size();j++){
+            HighHeavyLoadHistory highHeavyLoadHistory = new HighHeavyLoadHistory();
+            JSONObject jsonObject = jsonArray.getJSONObject(j);
+            if(jsonObject.containsKey("timeStamp")){
+                highHeavyLoadHistory.setTimeStamp(jsonObject.getLong("timeStamp")*1000);
+            }
+            if(jsonObject.containsKey("adjustType")){
+                highHeavyLoadHistory.setAdjustType(jsonObject.getLong("adjustType"));
+                if(jsonObject.getLong("adjustType")==1){
+                    highHeavyLoadHistory.setType("用户数调整");
+                }
+                if(jsonObject.getLong("adjustType")==2){
+                    highHeavyLoadHistory.setType("RSRP高门限调整");
+                }
+                if(jsonObject.getLong("adjustType")==4){
+                    highHeavyLoadHistory.setType("RS功率调整");
+                }
+            }
+            if(jsonObject.containsKey("ulSvcCellId")){
+                highHeavyLoadHistory.setUlSvcCellId(jsonObject.getLong("ulSvcCellId") & 0xFF);
+            }
+            if(jsonObject.containsKey("ulDstCellId")){
+                highHeavyLoadHistory.setUlDstCellId(jsonObject.getLong("ulDstCellId") & 0xFF);
+            }
+            if(jsonObject.containsKey("usKickUserCnt")){
+                highHeavyLoadHistory.setUsKickUserCnt(jsonObject.getLong("usKickUserCnt"));
+            }
+            if(jsonObject.containsKey("rspwrDelta")){
+                highHeavyLoadHistory.setRspwrDelta(jsonObject.getLong("rspwrDelta"));
+            }
+            if(jsonObject.containsKey("rsrpDelta")){
+                highHeavyLoadHistory.setRsrpDelta(jsonObject.getLong("rsrpDelta"));
+            }
+            if("fcnuser".equals(type)){
+                highHeavyLoadHistory.setBigType("频点间基于用户数的快速负载均衡");
+            }
+            if("user".equals(type)){
+                highHeavyLoadHistory.setBigType("基于用户数的快速调整");
+            }
+            if("interference".equals(type)){
+                highHeavyLoadHistory.setBigType("基于干扰的快速负载均衡");
+            }
+            list.add(highHeavyLoadHistory);
+        }
+        return list;
     }
 
     private void saveHperfstream(JSONObject result)
