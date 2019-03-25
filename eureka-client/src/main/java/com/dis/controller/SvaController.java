@@ -47,7 +47,7 @@ public class SvaController {
             wirelessInfo.setUsAvgUserNum(i+9);
             wirelessInfo.setUsCpuRate(i+10);
             wirelessInfo.setUsMaxUserNum(i+11);
-            wirelessInfo.setUlServiceCellId(String.valueOf(Integer.parseInt(("13363688"+String.valueOf(i))) & 0xFF));
+            wirelessInfo.setUlServiceCellId(String.valueOf(Integer.parseInt(("13363688"+String.valueOf(i+1))) & 0xFF));
             wirelessInfo.setUleNodebId(i+13);
             wirelessInfo.setTimestamp(new Date());
             list.add(wirelessInfo);
@@ -72,9 +72,24 @@ public class SvaController {
     }
     @RequestMapping("/subHperf")
     public String subHperf(){
+        log.info("subHperf start");
         subscriptionService.subscribeHeavyLoad(sva);
         return  "success";
     }
+    @RequestMapping("/getData")
+    public String getData(){
+        String result = "false";
+        log.info("getData start");
+        String[]  key ={"timestamp"};
+        Date s = new Date(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-30*1000);
+        Object[] values = {s};
+        List<? extends Object> list = MongodbUtils.findByGtDescAndLimit(new WirelessInfo(),key,values,"timestamp",1);
+        if(list!=null&&list.size()>0){
+            result = "true";
+        }
+        return  result;
+    }
+
     @RequestMapping("/hperfdef")
     public String hperfdef(){
         HeavyLoadParam heavyLoadParam = new HeavyLoadParam();

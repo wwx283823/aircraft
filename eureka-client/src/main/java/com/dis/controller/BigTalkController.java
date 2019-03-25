@@ -159,7 +159,17 @@ public class BigTalkController {
     }
     @RequestMapping("/getHistoryBySva")
     public String getHistoryBySva(){
-        subscriptionService.hperfrecord(sva);
+        Sva mySva = new Sva();
+        mySva.setId(sva.getId()+1);
+        mySva.setUsername(sva.getUsername2());
+        mySva.setType(sva.getType());
+        mySva.setTokenPort(sva.getTokenPort());
+        mySva.setStatus(sva.getStatus());
+        mySva.setPassword(sva.getPassword());
+        mySva.setIp(sva.getIp());
+        mySva.setBrokerPort(sva.getBrokerPort());
+        mySva.setIdType(sva.getIdType());
+        subscriptionService.hperfrecord(mySva);
         return "success";
     }
     @RequestMapping("/getNewHistory")
@@ -200,29 +210,47 @@ public class BigTalkController {
         String ulServiceCellId = wirelessInfo.getUlServiceCellId();
         String timestamp = wirelessInfo.getTimes();
         Date addTimes = null;
+        Date endTimes = null;
+        Date setTimes = null;
+        long timess = 0;
+        long nowTimestamp = new Date().getTime();
         if(timestamp==null){
-            addTimes = new Date(new Date().getTime()-echart.getRefreshs()*1000);
+            addTimes = new Date(nowTimestamp-echart.getRefreshs()*1000);
+            endTimes = new Date(nowTimestamp-echart.getRefresh()*1000+1000);
+            setTimes = new Date(nowTimestamp-echart.getRefresh()*1000);
         }else{
             SimpleDateFormat simdate1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             try{
-                addTimes = new Date(simdate1.parse(timestamp).getTime()+echart.getRefresh()*1000);
-
+                timess = simdate1.parse(timestamp).getTime();
+                addTimes = new Date(timess);
+                endTimes = new Date(timess+echart.getRefresh()*1000+1000);
+                setTimes =  new Date(timess+echart.getRefresh()*1000);
             }catch (Exception e){
                 log.info("refreshEchartsDataByCellId error:"+e.getMessage());
                 return  null;
             }
 
         }
-        Date sssd = new Date();
+        if(timess>nowTimestamp-echart.getRefresh()*1000*2){
+            timess = nowTimestamp-echart.getRefresh()*1000*2;
+            endTimes = new Date(timess+echart.getRefresh()*1000+1000);
+            setTimes =  new Date(timess+echart.getRefresh()*1000);
+        }
+//        Date sssd = new Date();
         String[] keys = {"ulServiceCellId","timestamp"};
         Object[]  values = {ulServiceCellId,addTimes};
-        Object[]  values2 = {ulServiceCellId,sssd};
-        WirelessInfo wirelessInfo1 = (WirelessInfo)MongodbUtils.findOne(wirelessInfo,keys,values);
-        WirelessInfo wirelessInfo2 = (WirelessInfo)MongodbUtils.findOne(wirelessInfo,keys,values2);
+//        Object[]  values2 = {ulServiceCellId,sssd};
+        WirelessInfo wirelessInfo1 = null;
+        List<? extends Object> result = MongodbUtils.findOneByCellIdAndTimestamp(wirelessInfo,keys,values,endTimes,"timestamp");
+        if(result!=null&&result.size()>0){
+            wirelessInfo1 =  (WirelessInfo)(result.get(0));
+            wirelessInfo1.setTimestamp(setTimes);
+        }
+//        WirelessInfo wirelessInfo2 = (WirelessInfo)MongodbUtils.findOne(wirelessInfo,keys,values2);
         if(wirelessInfo1==null){
             wirelessInfo1 = new WirelessInfo();
             wirelessInfo1.setUlServiceCellId(wirelessInfo.getUlServiceCellId());
-            wirelessInfo1.setTimestamp(addTimes);
+            wirelessInfo1.setTimestamp(setTimes);
         }
         return wirelessInfo1;
     }

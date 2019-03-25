@@ -51,7 +51,12 @@ public class SubscriptionService extends HttpsService  {
 //    }
 
     public void subscribeHeavyLoad(Sva sva){
-
+//        if(GlobalConf.getAmqpThread(sva.getId())!=null){
+//            log.info("thread subscribeHeavyLoad is not null svaId:"+sva.getId());
+//            return;
+//        }else{
+//            log.info("thread subscribeHeavyLoad is null svaId:"+sva.getId());
+//        }
         log.info("subscribeHeavyLoad started:"
                 + "appName:" + sva.getUsername()
                 + ",ip:" + sva.getIp()
@@ -72,10 +77,10 @@ public class SubscriptionService extends HttpsService  {
 //        MongodbUtils.findAll(new HeavyLoad());
 
         try{
-            if(GlobalConf.getAmqpThread(sva.getId())!=null){
-                this.unSubscribeHeavyLoad(sva);
-                Thread.sleep(1000);
-            }
+//            if(GlobalConf.getAmqpThread(sva.getId())!=null){
+//                GlobalConf.removeAmqpThread(sva.getId());
+//                log.info("remove thread subscribeHeavyLoad svaId:"+sva.getId());
+//            }
             // 获取token值
             Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
@@ -109,8 +114,6 @@ public class SubscriptionService extends HttpsService  {
 //                        mongodbUtils = new MongodbUtils();
 //                    }
                     log.info("subscribeHeavyLoad AmqpThread");
-                    sva.setTempApp(sva.getUsername2());
-                    sva.setUsername2(null);
                     AmqpThread at = new AmqpThread(sva,queueId);
                     GlobalConf.addAmqpThread(sva.getId(), at);
                     at.start();
@@ -135,9 +138,6 @@ public class SubscriptionService extends HttpsService  {
         catch (NoSuchAlgorithmException e)
         {
             log.error("subscribeHeavyLoad NoSuchAlgorithmException.", e);
-        }catch (InterruptedException e)
-        {
-            log.error("hperfrecord InterruptedException.", e);
         }
     }
 
@@ -263,18 +263,29 @@ public class SubscriptionService extends HttpsService  {
     }
 
     public void hperfrecord(Sva sva){
+        if(GlobalConf.getAmqpThread(sva.getId())!=null){
+            String status = GlobalConf.getAmqpThread(sva.getId()).getState().name();
+            log.info("thread hperfrecord is not null svaId:"+sva.getId()+",size:"+GlobalConf.getAmqpMapSize()+",status:"+status);
+            if(status!="RUNNABLE"){
+                GlobalConf.removeAmqpThread(sva.getId());
+                log.info("thread hperfrecord remove");
+            }else{
+                return;
+            }
+        }else{
+            log.info("thread hperfrecord is null svaId:"+sva.getId());
+        }
         log.info("hperfrecord started:"
-                + "appName:" + sva.getUsername2()
+                + "appName:" + sva.getUsername()
                 + ",ip:" + sva.getIp()
                 + ",port:" + sva.getTokenPort()
-        );
-//        sva.setUsername(sva.getUsername2());
+        );;
         // 获取token地址
         String url = "https://" + sva.getIp() + ":"
                 + sva.getTokenPort() + "/v3/auth/tokens";
         // 获取token参数
         String content = "{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\": {\"user\": {\"domain\": \"Api\",\"name\": \""
-                + sva.getUsername2()
+                + sva.getUsername()
                 + "\",\"password\": \""
                 + sva.getPassword() + "\"}}}}}";
         String charset = "UTF-8";
@@ -282,11 +293,11 @@ public class SubscriptionService extends HttpsService  {
 //        this.insertHeavyLoad();
 //        MongodbUtils.findAll(new HeavyLoad());
         try{
-            // 获取token值
-            if(GlobalConf.getAmqpThread(sva.getId()+1)!=null){
-                this.unHperfrecord(sva);
-                Thread.sleep(1000);
-            }
+
+//            if(GlobalConf.getAmqpThread(sva.getId())!=null){
+//                GlobalConf.removeAmqpThread(sva.getId());
+//                log.info("remove thread hperfrecord id"+sva.getId());
+//            }
             Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
             sva.setToken(token);
@@ -296,7 +307,7 @@ public class SubscriptionService extends HttpsService  {
             log.info("hperfrecord token got:"+token);
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
                     + "/enabler/catalog/hperfrecordreg/json/v1.0";
-            content = "{\"APPID\":\"" + sva.getUsername2() + "\"}";;
+            content = "{\"APPID\":\"" + sva.getUsername() + "\"}";;
             log.info("hperfrecord content:"+content);
             // 获取订阅ID
             Map<String,String> subResult = this.httpsPost(url, content, charset,"POST", tokenResult.get("token"),svaSSLVersion);
@@ -313,15 +324,8 @@ public class SubscriptionService extends HttpsService  {
                 // 如果获取queueId，则进入数据对接逻辑
                 if(StringUtils.isNotEmpty(queueId)){
                     log.info("hperfrecord AmqpThread");
-                    if(sva.getTempApp()!=null&&sva.getTempApp()!=""){
-                        sva.setUsername2(sva.getTempApp());
-                    }else{
-                        if(sva.getUsername2()!=null){
-                            sva.setTempApp(sva.getUsername2());
-                        }
-                    }
                     AmqpThread at = new AmqpThread(sva,queueId);
-                    GlobalConf.addAmqpThread(sva.getId()+1, at);
+                    GlobalConf.addAmqpThread(sva.getId(), at);
                     at.start();
                     log.info("hperfrecord starting AmqpThread");
                 }else{
@@ -343,9 +347,6 @@ public class SubscriptionService extends HttpsService  {
         catch (NoSuchAlgorithmException e)
         {
             log.error("hperfrecord NoSuchAlgorithmException.", e);
-        }catch (InterruptedException e)
-        {
-            log.error("hperfrecord InterruptedException.", e);
         }
     }
 
@@ -354,21 +355,20 @@ public class SubscriptionService extends HttpsService  {
         log.info("unHperfrecord started!");
         String url = "";
         String content = "";
-//        sva.setUsername(sva.getUsername2());
         try
         {
             // 获取token
             url = "https://" + sva.getIp() + ":"
                     + sva.getTokenPort() + "/v3/auth/tokens";
             content = "{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\": {\"user\": {\"domain\": \"Api\",\"name\": \""
-                    + sva.getUsername2()
+                    + sva.getUsername()
                     + "\",\"password\": \""
                     + sva.getPassword() + "\"}}}}}";
             String charset = "UTF-8";
             Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
             if(StringUtils.isEmpty(token)){
-                log.error("[unHperfrecord]token got failed:appName:" + sva.getUsername2());
+                log.error("[unHperfrecord]token got failed:appName:" + sva.getUsername());
                 return;
             }
             log.info("[unHperfrecord]token got:"+token);
@@ -376,12 +376,12 @@ public class SubscriptionService extends HttpsService  {
 
             url = "https://" + sva.getIp() + ":" + sva.getTokenPort()
                     + "/enabler/catalog/hperfstreamunreg/json/v1.0";
-            content = "{\"APPID\":\"" + sva.getUsername2()  + "\"}";
+            content = "{\"APPID\":\"" + sva.getUsername()  + "\"}";
             Map<String,String> subResult = this.httpsPost(url, content,charset, "DELETE", token, svaSSLVersion);
 //            log.info("[unHperfrecord]result:" + subResult.get("result"));
             // 关闭amqp连接
-            GlobalConf.removeAmqpThread(sva.getId()+1);
-            log.info("unHperfrecord remove thread id:"+sva.getId()+1);
+            GlobalConf.removeAmqpThread(sva.getId());
+            log.info("unHperfrecord remove thread id:"+sva.getId());
         }
         catch (KeyManagementException e)
         {

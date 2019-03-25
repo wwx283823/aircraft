@@ -1,10 +1,12 @@
 package com.dis.common;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+@Slf4j
 public abstract class GlobalConf
 {
     public static String ip;
@@ -144,12 +146,12 @@ public abstract class GlobalConf
      * @Title: addService   
      * @Description: 加入SVA数据对接管理表   
      * @param svaId
-     * @param s   
      * @return: void      
      * @throws   
      */ 
     public static synchronized void addAmqpThread(String svaId, AmqpThread thread)
     {
+        log.info("add thread id"+svaId);
     	subscriptionMap.put(svaId, thread);
     }
 
@@ -165,7 +167,9 @@ public abstract class GlobalConf
     	AmqpThread at = subscriptionMap.get(svaId);
     	if(at != null){
     		at.stopThread();
+            log.info("stop thread id"+svaId);
     	}
+        log.info("remove thread id"+svaId);
         subscriptionMap.remove(svaId);
     }
 

@@ -43,6 +43,6 @@ public class GlobalWebLog {
     @AfterReturning(returning = "ret",pointcut = "myWebLog()")
     public void doAfterReturn(Object ret) throws Throwable{
         //处理完请求返回内容
-        log.info("return result:"+ret);
+//        log.info("return result:"+ret);
     }
 }

@@ -76,7 +76,7 @@
                 配置日志文件不能超过100M，若超过100M，日志文件会以索引0开始，命名日志文件
                 例如error.20180823.0.txt
             -->
-            <maxFileSize>100MB</maxFileSize>
+            <maxFileSize>10MB</maxFileSize>
             <!-- 只保留最近10天的日志 -->
             <maxHistory>${error.maxHistory}</maxHistory>
         </rollingPolicy>
@@ -99,7 +99,7 @@
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <FileNamePattern>${logback.path}\${warn.fileNamePattern}</FileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
+            <maxFileSize>10MB</maxFileSize>
             <maxHistory>${warn.maxHistory}</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -118,7 +118,7 @@
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <FileNamePattern>${logback.newPath}\${info.fileNamePattern}</FileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
+            <maxFileSize>10MB</maxFileSize>
             <maxHistory>${info.maxHistory}</maxHistory>
         </rollingPolicy>
         <encoder>

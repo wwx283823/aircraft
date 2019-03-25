@@ -1,5 +1,6 @@
 package com.dis.common;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -404,6 +405,25 @@ public class MongodbUtils {
         return resultObj;
     }
 
+    public static List<? extends Object> findOneByCellIdAndTimestamp(Object obj, String[] findKeys, Object[] findValues, Date date,String sort) {
+
+        Criteria criteria = null;
+        for (int i = 0; i < findKeys.length; i++) {
+            if (i == 0) {
+                criteria = Criteria.where(findKeys[i]).is(findValues[i]);
+            } else {
+                criteria.and(findKeys[i]).lt(date).gte(findValues[i]);
+            }
+//            if(i==findKeys.length-1){
+//                criteria.and(findKeys[i]).lt(findValues[i]);
+//            }
+        }
+        Query query = Query.query(criteria);
+        query.with(new Sort(Direction.DESC,sort));
+//        query.limit(1);
+        List<? extends Object> resultObj = mongodbUtils.mongoTemplate.find(query, obj.getClass());
+        return resultObj;
+    }
     /**
      * 指定集合 根据条件查询出符合的第一条数据
      *

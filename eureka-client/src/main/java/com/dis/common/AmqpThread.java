@@ -68,14 +68,6 @@ public class AmqpThread extends Thread {
         sva.setTokenPort(svaParam.getTokenPort());
         sva.setType(svaParam.getType());
         sva.setUsername(svaParam.getUsername());
-        if(svaParam.getUsername2()!=null){
-            sva.setUsername(svaParam.getUsername2());
-            sva.setId(svaParam.getId()+1);
-        }
-//        sva.setUsername2(svaParam.getUsername2());
-//        sva.setToken2(svaParam.getToken2());
-//        this.sva = sva;
-//        this.dao = dao;
         this.queueId = queue;
         log.info("new AmqpThread queueId:"+queueId);
 
@@ -159,7 +151,7 @@ public class AmqpThread extends Thread {
             
             while(!isStop  && !this.isInterrupted())
             {
-                Message m = consumer.receive(60000);
+                Message m = consumer.receive(3600000);
                 // message为空的情况,
                 if(m == null){
                     log.info("Get NULL message, pause for 1 miniute!");
@@ -203,6 +195,9 @@ public class AmqpThread extends Thread {
                 log.error(e.getMessage());
             }
             log.error("[AMQP]No data from SVA,connection closed!");
+            if(GlobalConf.getAmqpThread(sva.getId())!=null){
+                GlobalConf.removeAmqpThread(sva.getId());
+            }
         }
     }
     
@@ -252,15 +247,15 @@ public class AmqpThread extends Thread {
                     JSONObject json = jsonArray1.getJSONObject(i);
                     if(json.containsKey("fcnuser")){
                         JSONArray jsonArray = json.getJSONArray("fcnuser");
-                        list.addAll(getHeavyLoadHistory(list,jsonArray,"fcnuser"));
+                        getHeavyLoadHistory(list,jsonArray,"fcnuser");
                     }
                     if(json.containsKey("user")){
                         JSONArray jsonArray = json.getJSONArray("user");
-                        list.addAll(getHeavyLoadHistory(list,jsonArray,"user"));
+                        getHeavyLoadHistory(list,jsonArray,"user");
                     }
                     if(json.containsKey("interference")){
                         JSONArray jsonArray = json.getJSONArray("interference");
-                        list.addAll(getHeavyLoadHistory(list,jsonArray,"interference"));
+                        getHeavyLoadHistory(list,jsonArray,"interference");
                     }
                 }
                 if(list!=null&&list.size()>0){
@@ -328,7 +323,7 @@ public class AmqpThread extends Thread {
     private void saveHperfstream(JSONObject result)
     {
         JSONArray list = result.getJSONArray("hperfstream");
-        List<WirelessInfo> wirelessInfos = new ArrayList<WirelessInfo>();
+//        List<WirelessInfo> wirelessInfos = new ArrayList<WirelessInfo>();
         for(int i = 0; i<list.size();i++){
             WirelessInfo lm = new WirelessInfo();
             List<WirelessInfo> wirelessInfoList = new ArrayList<WirelessInfo>();
@@ -337,18 +332,23 @@ public class AmqpThread extends Thread {
                 continue;
             }
             if(wirelessInfoList!=null&&wirelessInfoList.size()>0){
-                wirelessInfos.addAll(wirelessInfoList);
+                log.info("hperfstream insert start!");
+                MongodbUtils.saveList(wirelessInfoList);
+                log.debug("hperfstream insert end!");
+//                wirelessInfos.addAll(wirelessInfoList);
             }
+
         }
-        if (wirelessInfos!=null&&wirelessInfos.size()>0) {
-            log.info("hperfstream insert start!");
-            MongodbUtils.saveList(wirelessInfos);
-            log.debug("hperfstream insert end!");
-        }
+//        if (wirelessInfos!=null&&wirelessInfos.size()>0) {
+//            log.info("hperfstream insert start!");
+//            MongodbUtils.saveList(wirelessInfos);
+//            log.debug("hperfstream insert end!");
+//        }
     }
 
     private boolean parseHperfData(JSONObject loc, WirelessInfo lm,List<WirelessInfo> list){
         if(loc.containsKey("wirelessInfo")){
+            Date now = new Date();
             long uleNodebId = 0;
             String ulServiceCellId = null;
 
@@ -368,11 +368,11 @@ public class AmqpThread extends Thread {
                     log.info("parseHperfData jsonArray1:");
                     if(j>0){
                         lm = new WirelessInfo();
-                        lm.setTimestamp(new Date());
+                        lm.setTimestamp(now);
                         lm.setUlServiceCellId(ulServiceCellId);
                         lm.setUleNodebId(uleNodebId);
                     }else{
-                        lm.setTimestamp(new Date());
+                        lm.setTimestamp(now);
                     }
                     JSONObject jsonObject = jsonArray1.getJSONObject(j);
                     Long result1 = getJsonByStr(jsonObject,"ULCellInterference");
@@ -430,6 +430,16 @@ public class AmqpThread extends Thread {
                         long usMaxUserNum = result1;
                         lm.setUsMaxUserNum(usMaxUserNum);
                     }
+                    result1 = getJsonByStr(jsonObject,"timeStamp");
+                    if(result1!=null){
+                        long usMaxUserNum = result1;
+                        lm.setMyTimestamp(usMaxUserNum);
+                    }
+//                    result1 = getJsonByStr(jsonObject,"timeStamp");
+//                    if(result1!=null){
+//                        long timestamps = result1;
+//                        lm.setTimeStamp(timestamps);
+//                    }
                     list.add(lm);
                 }
             }catch (Exception e){

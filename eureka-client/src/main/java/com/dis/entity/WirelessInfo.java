@@ -26,5 +26,6 @@ public class WirelessInfo implements Serializable {
     private String ulServiceCellId;
     private long uleNodebId;
     private Date timestamp;
+    private long myTimestamp;
     private String times;
 }
