@@ -90,6 +90,19 @@ public class SvaController {
         return  result;
     }
 
+    @RequestMapping("/getHistoryData")
+    public String getHistoryData(){
+        String result = "false";
+        log.info("getHistoryData start");
+        String[]  key ={"timeStamp"};
+        long s = new Date(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-60*1000).getTime()/1000;
+        Object[] values = {s};
+        List<? extends Object> list = MongodbUtils.findByGtDescAndLimit(new HighHeavyLoadHistory(),key,values,"timeStamp",1);
+        if(list!=null&&list.size()>0){
+            result = "true";
+        }
+        return  result;
+    }
     @RequestMapping("/hperfdef")
     public String hperfdef(){
         HeavyLoadParam heavyLoadParam = new HeavyLoadParam();

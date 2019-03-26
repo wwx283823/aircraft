@@ -51,12 +51,6 @@ public class SubscriptionService extends HttpsService  {
 //    }
 
     public void subscribeHeavyLoad(Sva sva){
-//        if(GlobalConf.getAmqpThread(sva.getId())!=null){
-//            log.info("thread subscribeHeavyLoad is not null svaId:"+sva.getId());
-//            return;
-//        }else{
-//            log.info("thread subscribeHeavyLoad is null svaId:"+sva.getId());
-//        }
         log.info("subscribeHeavyLoad started:"
                 + "appName:" + sva.getUsername()
                 + ",ip:" + sva.getIp()
@@ -77,10 +71,17 @@ public class SubscriptionService extends HttpsService  {
 //        MongodbUtils.findAll(new HeavyLoad());
 
         try{
-//            if(GlobalConf.getAmqpThread(sva.getId())!=null){
-//                GlobalConf.removeAmqpThread(sva.getId());
-//                log.info("remove thread subscribeHeavyLoad svaId:"+sva.getId());
-//            }
+            if(GlobalConf.getAmqpThread(sva.getId())!=null){
+                String status = GlobalConf.getAmqpThread(sva.getId()).getState().name();
+                log.info("thread subscribeHeavyLoad is not null svaId:"+sva.getId()+",size:"+GlobalConf.getAmqpMapSize()+",status:"+status);
+                if(status=="TERMINATED"){
+                    GlobalConf.removeAmqpThread(sva.getId());
+                    log.info("thread subscribeHeavyLoad remove id:"+sva.getId());
+                }else{
+                    return;
+                }
+            }
+            Thread.sleep(500);
             // 获取token值
             Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
@@ -138,6 +139,8 @@ public class SubscriptionService extends HttpsService  {
         catch (NoSuchAlgorithmException e)
         {
             log.error("subscribeHeavyLoad NoSuchAlgorithmException.", e);
+        }catch (InterruptedException e){
+            log.error("subscribeHeavyLoad InterruptedException.", e);
         }
     }
 
@@ -266,7 +269,7 @@ public class SubscriptionService extends HttpsService  {
         if(GlobalConf.getAmqpThread(sva.getId())!=null){
             String status = GlobalConf.getAmqpThread(sva.getId()).getState().name();
             log.info("thread hperfrecord is not null svaId:"+sva.getId()+",size:"+GlobalConf.getAmqpMapSize()+",status:"+status);
-            if(status!="RUNNABLE"){
+            if(status=="TERMINATED"){
                 GlobalConf.removeAmqpThread(sva.getId());
                 log.info("thread hperfrecord remove");
             }else{
@@ -298,6 +301,7 @@ public class SubscriptionService extends HttpsService  {
 //                GlobalConf.removeAmqpThread(sva.getId());
 //                log.info("remove thread hperfrecord id"+sva.getId());
 //            }
+            Thread.sleep(1000);
             Map<String,String> tokenResult = this.httpsPost(url, content, charset,"POST", null, svaSSLVersion);
             String token = tokenResult.get("token");
             sva.setToken(token);
@@ -347,6 +351,8 @@ public class SubscriptionService extends HttpsService  {
         catch (NoSuchAlgorithmException e)
         {
             log.error("hperfrecord NoSuchAlgorithmException.", e);
+        }catch (InterruptedException e){
+            log.error("hperfrecord InterruptedException.", e);
         }
     }
 

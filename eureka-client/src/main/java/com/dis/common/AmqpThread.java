@@ -151,11 +151,12 @@ public class AmqpThread extends Thread {
             
             while(!isStop  && !this.isInterrupted())
             {
-                Message m = consumer.receive(3600000);
+                Message m = consumer.receive(10000);
                 // message为空的情况,
                 if(m == null){
-                    log.info("Get NULL message, pause for 1 miniute!");
+                    log.info("Get NULL message, pause for 1 miniute! svaId:"+sva.getId());
 //                    sleep(60000);
+                    sleep(200);
                     continue;
                 }
                 // message格式是否正确
@@ -176,28 +177,26 @@ public class AmqpThread extends Thread {
                 }
             }
         } catch (URLSyntaxException e) {
-            log.error(e.getMessage());
+            log.error("URLSyntaxException:"+e.getMessage());
         } catch (QpidException e) {
-            log.error(e.getMessage());
+            log.error("QpidException:"+e.getMessage());
         } catch (JMSException e) {
-            log.error(e.getMessage());
+            log.error("JMSException:"+e.getMessage());
         } catch (URISyntaxException e) {
-            log.error(e.getMessage());
+            log.error("URISyntaxException:"+e.getMessage());
         } catch (Exception e){
-            log.error(e.getMessage());
+            log.error("Exception:"+e.getMessage());
         } finally{
             try {
                 if(conn != null)
                 {
                     conn.close();
+                    log.error("run close conn svaId:"+sva.getId());
                 }
             } catch (JMSException e) {
-                log.error(e.getMessage());
+                log.error("JMSException:"+e.getMessage());
             }
             log.error("[AMQP]No data from SVA,connection closed!");
-            if(GlobalConf.getAmqpThread(sva.getId())!=null){
-                GlobalConf.removeAmqpThread(sva.getId());
-            }
         }
     }
     
